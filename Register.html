@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title>Créer un Compte — TopoSarl</title>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            poppins: ['Poppins', 'sans-serif'],
+            playfair: ['Playfair Display', 'serif'],
+          },
+          colors: {
+            primary: '#0F2027',
+            secondary: '#203A43',
+            accent: '#2C5364',
+            gold: '#F0A500',
+            goldLight: '#F5C518',
+            teal: '#00B4D8',
+            darkBg: '#0A0A0A',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Poppins', sans-serif; overflow-x: hidden; }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0F2027; }
+    ::-webkit-scrollbar-thumb { background: #F0A500; border-radius: 10px; }
+
+    /* ===== PRELOADER ===== */
+    #preloader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #0F2027;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+    #preloader.hidden { opacity: 0; visibility: hidden; }
+    .loader-ring {
+      width: 70px; height: 70px; position: relative;
+      border: 4px solid transparent;
+      border-top: 4px solid #F0A500;
+      border-right: 4px solid #00B4D8;
+      border-radius: 50%;
+      animation: spinLoader 1s linear infinite;
+    }
+    .loader-ring::before {
+      content: ''; position: absolute;
+      top: 8px; left: 8px; right: 8px; bottom: 8px;
+      border: 4px solid transparent;
+      border-top: 4px solid #F0A500;
+      border-left: 4px solid #00B4D8;
+      border-radius: 50%;
+      animation: spinLoader 0.6s linear reverse infinite;
+    }
+    @keyframes spinLoader { to { transform: rotate(360deg); } }
+
+    /* ===== BACKGROUND ===== */
+    .register-bg {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
+      position: relative; overflow-x: hidden;
+    }
+
+    /* Grille topographique */
+    .topo-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(240, 165, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(240, 165, 0, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridMove 20s linear infinite;
+    }
+    @keyframes gridMove {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(60px, 60px); }
+    }
+
+    /* Particules */
+    .particle {
+      position: absolute; border-radius: 50%;
+      animation: floatParticle linear infinite;
+      opacity: 0;
+    }
+    @keyframes floatParticle {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* Contour lines */
+    .contour-line {
+      position: absolute;
+      border: 1px solid rgba(240, 165, 0, 0.08);
+      border-radius: 50%;
+      animation: contourPulse 4s ease-in-out infinite;
+    }
+    @keyframes contourPulse {
+      0%, 100% { transform: scale(1); opacity: 0.3; }
+      50% { transform: scale(1.1); opacity: 0.6; }
+    }
+
+    /* Floating shapes */
+    .floating-shape {
+      position: absolute;
+      animation: floatShape 6s ease-in-out infinite;
+    }
+    @keyframes floatShape {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      33% { transform: translateY(-20px) rotate(5deg); }
+      66% { transform: translateY(10px) rotate(-3deg); }
+    }
+
+    /* ===== REGISTER CARD ===== */
+    .register-card {
+      position: relative;
+      background: rgba(15, 32, 39, 0.75);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid rgba(240, 165, 0, 0.15);
+      border-radius: 2rem;
+      animation: cardAppear 1s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
+    }
+    @keyframes cardAppear {
+      from { opacity: 0; transform: translateY(50px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Glow border animation */
+    .register-card::before {
+      content: '';
+      position: absolute; inset: -2px;
+      border-radius: 2rem;
+      background: conic-gradient(from var(--angle, 0deg), #F0A500, #00B4D8, #F0A500, #00B4D8, #F0A500);
+      z-index: -1;
+      animation: rotateBorder 4s linear infinite;
+      opacity: 0.5;
+      transition: opacity 0.3s ease;
+    }
+    .register-card:hover::before { opacity: 0.8; }
+    @property --angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+    @keyframes rotateBorder {
+      to { --angle: 360deg; }
+    }
+
+    /* ===== STEP INDICATOR ===== */
+    .steps-container {
+      display: flex; justify-content: center; align-items: center;
+      gap: 0; margin-bottom: 2rem;
+    }
+    .step-circle {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 2px solid rgba(240, 165, 0, 0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 700;
+      color: rgba(156, 163, 175, 0.5);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      background: rgba(15, 32, 39, 0.5);
+    }
+    .step-circle.active {
+      border-color: #F0A500;
+      color: #0F2027;
+      background: linear-gradient(135deg, #F0A500, #F5C518);
+      box-shadow: 0 0 25px rgba(240, 165, 0, 0.3);
+      transform: scale(1.1);
+    }
+    .step-circle.completed {
+      border-color: #10B981;
+      color: white;
+      background: #10B981;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+    .step-line {
+      width: 60px; height: 2px;
+      background: rgba(240, 165, 0, 0.15);
+      transition: background 0.5s ease;
+    }
+    .step-line.active {
+      background: linear-gradient(90deg, #F0A500, #00B4D8);
+    }
+
+    /* ===== FORM STEPS ===== */
+    .form-step {
+      display: none;
+      animation: stepFadeIn 0.5s ease;
+    }
+    .form-step.active { display: block; }
+    @keyframes stepFadeIn {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ===== INPUTS ===== */
+    .input-group { position: relative; }
+    .input-group .input-icon {
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      color: rgba(240, 165, 0, 0.4);
+      transition: color 0.3s ease; z-index: 2;
+    }
+    .input-field {
+      width: 100%;
+      padding: 14px 16px 14px 48px;
+      background: rgba(15, 32, 39, 0.5);
+      border: 1px solid rgba(240, 165, 0, 0.12);
+      border-radius: 1rem;
+      color: #FFFFFF;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+    .input-field::placeholder { color: rgba(156, 163, 175, 0.5); }
+    .input-field:focus {
+      border-color: #F0A500;
+      box-shadow: 0 0 25px rgba(240, 165, 0, 0.12);
+      background: rgba(15, 32, 39, 0.7);
+    }
+    .input-group:focus-within .input-icon { color: #F0A500; }
+
+    /* Password toggle */
+    .password-toggle {
+      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+      color: rgba(156, 163, 175, 0.5);
+      cursor: pointer; z-index: 2;
+      transition: color 0.3s ease;
+    }
+    .password-toggle:hover { color: #F0A500; }
+
+    /* ===== PASSWORD STRENGTH ===== */
+    .strength-bar-container {
+      display: flex; gap: 4px; margin-top: 8px;
+    }
+    .strength-bar {
+      flex: 1; height: 4px;
+      background: rgba(240, 165, 0, 0.1);
+      border-radius: 2px;
+      transition: all 0.4s ease;
+    }
+    .strength-bar.weak { background: #EF4444; }
+    .strength-bar.medium { background: #F59E0B; }
+    .strength-bar.strong { background: #10B981; }
+
+    .strength-text {
+      font-size: 0.7rem; margin-top: 4px;
+      transition: color 0.3s ease;
+    }
+
+    /* ===== ROLE CARDS ===== */
+    .role-card {
+      position: relative;
+      padding: 20px;
+      background: rgba(15, 32, 39, 0.4);
+      border: 2px solid rgba(240, 165, 0, 0.1);
+      border-radius: 1rem;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      text-align: center;
+    }
+    .role-card:hover {
+      border-color: rgba(240, 165, 0, 0.3);
+      background: rgba(240, 165, 0, 0.03);
+      transform: translateY(-3px);
+    }
+    .role-card.selected {
+      border-color: #F0A500;
+      background: rgba(240, 165, 0, 0.08);
+      box-shadow: 0 0 30px rgba(240, 165, 0, 0.15);
+    }
+    .role-card .role-check {
+      position: absolute; top: 10px; right: 10px;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid rgba(240, 165, 0, 0.3);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.3s ease;
+    }
+    .role-card.selected .role-check {
+      background: #F0A500;
+      border-color: #F0A500;
+    }
+    .role-card.selected .role-check::after {
+      content: '✓'; color: #0F2027;
+      font-size: 12px; font-weight: bold;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn-next {
+      position: relative; overflow: hidden;
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #F0A500, #F5C518);
+      color: #0F2027;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700; font-size: 0.95rem;
+      border: none; border-radius: 1rem;
+      cursor: pointer;
+      transition: all 0.4s ease;
+    }
+    .btn-next:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(240, 165, 0, 0.35);
+    }
+    .btn-next::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+    .btn-next:hover::before { transform: translateX(100%); }
+    .btn-next:disabled {
+      opacity: 0.5; cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .btn-prev {
+      padding: 14px 32px;
+      background: rgba(15, 32, 39, 0.5);
+      border: 1px solid rgba(240, 165, 0, 0.2);
+      color: #F0A500;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600; font-size: 0.95rem;
+      border-radius: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn-prev:hover {
+      background: rgba(240, 165, 0, 0.08);
+      border-color: rgba(240, 165, 0, 0.4);
+    }
+
+    .btn-next.loading {
+      pointer-events: none; color: transparent;
+    }
+    .btn-next.loading::after {
+      content: '';
+      position: absolute; top: 50%; left: 50%;
+      width: 22px; height: 22px;
+      margin: -11px 0 0 -11px;
+      border: 3px solid rgba(15, 32, 39, 0.2);
+      border-top-color: #0F2027;
+      border-radius: 50%;
+      animation: spinLoader 0.8s linear infinite;
+    }
+
+    /* ===== CUSTOM CHECKBOX ===== */
+    .custom-checkbox {
+      appearance: none;
+      width: 20px; height: 20px;
+      border: 2px solid rgba(240, 165, 0, 0.3);
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative; flex-shrink: 0;
+    }
+    .custom-checkbox:checked {
+      background: #F0A500; border-color: #F0A500;
+    }
+    .custom-checkbox:checked::after {
+      content: '✓';
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: #0F2027; font-size: 12px; font-weight: bold;
+    }
+
+    /* ===== ERROR STYLES ===== */
+    .input-error {
+      border-color: #EF4444 !important;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.15) !important;
+    }
+    .error-msg {
+      color: #EF4444; font-size: 0.75rem;
+      margin-top: 4px; display: none;
+      animation: fadeInUp 0.3s ease;
+    }
+    .error-msg.show { display: block; }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+      20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+    .shake { animation: shake 0.5s ease; }
+
+    /* ===== SUCCESS OVERLAY ===== */
+    .success-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(15, 32, 39, 0.95);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden;
+      transition: all 0.5s ease;
+    }
+    .success-overlay.active { opacity: 1; visibility: visible; }
+    .success-check {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #F0A500, #F5C518);
+      display: flex; align-items: center; justify-content: center;
+      transform: scale(0);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .success-overlay.active .success-check { transform: scale(1); }
+    .success-check i { font-size: 40px; color: #0F2027; }
+
+    /* Confetti */
+    .confetti-piece {
+      position: fixed; z-index: 10000;
+      width: 10px; height: 10px;
+      opacity: 0;
+    }
+    @keyframes confettiFall {
+      0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ===== BACK BUTTON ===== */
+    .back-btn {
+      position: absolute; top: 24px; left: 24px;
+      width: 44px; height: 44px;
+      background: rgba(15, 32, 39, 0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(240, 165, 0, 0.15);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #F0A500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 10;
+      text-decoration: none;
+    }
+    .back-btn:hover {
+      background: rgba(240, 165, 0, 0.1);
+      border-color: rgba(240, 165, 0, 0.4);
+      transform: translateX(-3px);
+    }
+
+    /* ===== LINKS ===== */
+    .link-gold {
+      color: #F0A500; text-decoration: none;
+      position: relative; transition: all 0.3s ease;
+    }
+    .link-gold::after {
+      content: ''; position: absolute;
+      bottom: -2px; left: 0; width: 0; height: 1px;
+      background: #F0A500; transition: width 0.3s ease;
+    }
+    .link-gold:hover::after { width: 100%; }
+    .link-gold:hover { color: #F5C518; }
+
+    /* ===== DIVIDER ===== */
+    .divider { display: flex; align-items: center; gap: 16px; }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(240,165,0,0.2), transparent);
+    }
+
+    /* ===== SOCIAL BUTTONS ===== */
+    .social-btn {
+      flex: 1; padding: 12px;
+      background: rgba(15, 32, 39, 0.4);
+      border: 1px solid rgba(240, 165, 0, 0.1);
+      border-radius: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.3s ease;
+      color: #9CA3AF;
+    }
+    .social-btn:hover {
+      border-color: rgba(240, 165, 0, 0.4);
+      background: rgba(240, 165, 0, 0.05);
+      color: #F0A500;
+      transform: translateY(-2px);
+    }
+
+    /* ===== AVATAR UPLOAD ===== */
+    .avatar-upload {
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      border: 3px dashed rgba(240, 165, 0, 0.3);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative; overflow: hidden;
+      margin: 0 auto 1.5rem;
+    }
+    .avatar-upload:hover {
+      border-color: #F0A500;
+      background: rgba(240, 165, 0, 0.05);
+    }
+    .avatar-upload img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      display: none;
+    }
+    .avatar-upload.has-image img { display: block; }
+    .avatar-upload.has-image .avatar-placeholder { display: none; }
+    .avatar-upload input[type="file"] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 640px) {
+      .register-card { margin: 1rem; padding: 2rem 1.5rem !important; }
+      .step-line { width: 30px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== PRELOADER ===== -->
+  <div id="preloader">
+    <div class="relative">
+      <div class="loader-ring"></div>
+      <p class="text-gold text-sm mt-4 text-center font-poppins tracking-widest">TOPOSARL</p>
+    </div>
+  </div>
+
+  <!-- ===== SUCCESS OVERLAY ===== -->
+  <div class="success-overlay" id="successOverlay">
+    <div class="text-center">
+      <div class="success-check mb-6">
+        <i class="fas fa-check"></i>
+      </div>
+      <h3 class="text-white text-2xl font-bold mb-2">Compte Créé !</h3>
+      <p class="text-gray-400 text-sm mb-4">Bienvenue chez TopoSarl</p>
+      <p class="text-gray-500 text-xs">Redirection vers la page de connexion...</p>
+    </div>
+  </div>
+
+  <!-- ===== MAIN PAGE ===== -->
+  <div class="register-bg flex items-center justify-center px-4 py-12">
+
+    <!-- Background Effects -->
+    <div class="topo-grid"></div>
+
+    <!-- Contour Lines -->
+    <div class="contour-line" style="width:300px;height:300px;top:5%;left:-5%;animation-delay:0s;"></div>
+    <div class="contour-line" style="width:500px;height:500px;top:15%;right:-10%;animation-delay:1s;"></div>
+    <div class="contour-line" style="width:200px;height:200px;bottom:10%;left:25%;animation-delay:2s;"></div>
+    <div class="contour-line" style="width:400px;height:400px;bottom:5%;right:5%;animation-delay:0.5s;"></div>
+
+    <!-- Particles -->
+    <div id="particles" class="absolute inset-0 overflow-hidden"></div>
+
+    <!-- Floating Shapes -->
+    <div class="floating-shape" style="top:8%;left:6%;animation-delay:0s;">
+      <i class="fas fa-drafting-compass text-gold/15 text-4xl"></i>
+    </div>
+    <div class="floating-shape" style="top:18%;right:8%;animation-delay:1s;">
+      <i class="fas fa-globe-americas text-teal/15 text-5xl"></i>
+    </div>
+    <div class="floating-shape" style="bottom:12%;left:10%;animation-delay:2s;">
+      <i class="fas fa-map-marked-alt text-gold/10 text-3xl"></i>
+    </div>
+    <div class="floating-shape" style="bottom:22%;right:6%;animation-delay:0.5s;">
+      <i class="fas fa-satellite text-teal/15 text-4xl"></i>
+    </div>
+
+    <!-- Back Button -->
+    <a href="Connexion.html" class="back-btn">
+      <i class="fas fa-arrow-left"></i>
+    </a>
+
+    <!-- ===== REGISTER CARD ===== -->
+    <div class="register-card w-full max-w-lg p-8 md:p-10 relative z-10">
+
+      <!-- Logo & Title -->
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-gold to-goldLight mb-3 transform hover:rotate-12 transition-transform duration-500">
+          <i class="fas fa-mountain text-primary text-xl"></i>
+        </div>
+        <h1 class="text-2xl font-playfair font-black text-white">
+          TOPO<span class="text-gold">SARL</span>
+        </h1>
+        <p class="text-gray-400 text-xs tracking-[0.2em] uppercase mt-1">Créer un Compte</p>
+      </div>
+
+      <!-- Step Indicators -->
+      <div class="steps-container">
+        <div class="step-circle active" id="stepCircle1">1</div>
+        <div class="step-line" id="stepLine1"></div>
+        <div class="step-circle" id="stepCircle2">2</div>
+        <div class="step-line" id="stepLine2"></div>
+        <div class="step-circle" id="stepCircle3">3</div>
+      </div>
+
+      <!-- ===== STEP 1: Informations Personnelles ===== -->
+      <div class="form-step active" id="step1">
+        <h3 class="text-white font-bold text-lg mb-1 text-center">Informations Personnelles</h3>
+        <p class="text-gray-400 text-xs text-center mb-6">Dites-nous qui vous êtes</p>
+
+        <!-- Avatar Upload -->
+        <div class="avatar-upload" id="avatarUpload">
+          <div class="avatar-placeholder text-center">
+            <i class="fas fa-camera text-gold/40 text-xl"></i>
+            <p class="text-gray-500 text-[10px] mt-1">Photo</p>
+          </div>
+          <img id="avatarPreview" alt="Avatar">
+          <input type="file" accept="image/*" onchange="handleAvatar(event)">
+        </div>
+
+        <!-- Nom & Prénom -->
+        <div class="grid grid-cols-2 gap-4 mb-5">
+          <div class="input-group">
+            <i class="fas fa-user input-icon"></i>
+            <input type="text" id="nom" class="input-field" placeholder="Nom" required>
+            <p class="error-msg" id="nomError"><i class="fas fa-exclamation-circle mr-1"></i>Le nom est requis</p>
+          </div>
+          <div class="input-group">
+            <i class="fas fa-user input-icon"></i>
+            <input type="text" id="prenom" class="input-field" placeholder="Prénom" required>
+            <p class="error-msg" id="prenomError"><i class="fas fa-exclamation-circle mr-1"></i>Le prénom est requis</p>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="input-group mb-5">
+          <i class="fas fa-envelope input-icon"></i>
+          <input type="email" id="email" class="input-field" placeholder="Adresse email" required>
+          <p class="error-msg" id="emailError"><i class="fas fa-exclamation-circle mr-1"></i>Email invalide</p>
+        </div>
+
+        <!-- Téléphone -->
+        <div class="input-group mb-5">
+          <i class="fas fa-phone input-icon"></i>
+          <input type="tel" id="telephone" class="input-field" placeholder="Numéro de téléphone" required>
+          <p class="error-msg" id="telError"><i class="fas fa-exclamation-circle mr-1"></i>Numéro invalide</p>
+        </div>
+
+        <!-- Next Button -->
+        <div class="flex justify-end">
+          <button type="button" class="btn-next" onclick="nextStep(1)">
+            Continuer <i class="fas fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- ===== STEP 2: Sécurité & Rôle ===== -->
+      <div class="form-step" id="step2">
+        <h3 class="text-white font-bold text-lg mb-1 text-center">Sécurité & Rôle</h3>
+        <p class="text-gray-400 text-xs text-center mb-6">Choisissez votre mot de passe et votre rôle</p>
+
+        <!-- Mot de passe -->
+        <div class="input-group mb-2">
+          <i class="fas fa-lock input-icon"></i>
+          <input type="password" id="password" class="input-field pr-12" placeholder="Mot de passe" required oninput="checkPasswordStrength(this.value)">
+          <span class="password-toggle" onclick="togglePassword('password', 'eyeIcon1')">
+            <i class="fas fa-eye" id="eyeIcon1"></i>
+          </span>
+        </div>
+
+        <!-- Password Strength -->
+        <div class="mb-5">
+          <div class="strength-bar-container">
+            <div class="strength-bar" id="bar1"></div>
+            <div class="strength-bar" id="bar2"></div>
+            <div class="strength-bar" id="bar3"></div>
+            <div class="strength-bar" id="bar4"></div>
+          </div>
+          <p class="strength-text text-gray-500" id="strengthText">Force du mot de passe</p>
+          <p class="error-msg" id="passwordError"><i class="fas fa-exclamation-circle mr-1"></i>Minimum 6 caractères requis</p>
+        </div>
+
+        <!-- Confirmer mot de passe -->
+        <div class="input-group mb-6">
+          <i class="fas fa-shield-alt input-icon"></i>
+          <input type="password" id="confirmPassword" class="input-field pr-12" placeholder="Confirmer le mot de passe" required>
+          <span class="password-toggle" onclick="togglePassword('confirmPassword', 'eyeIcon2')">
+            <i class="fas fa-eye" id="eyeIcon2"></i>
+          </span>
+          <p class="error-msg" id="confirmError"><i class="fas fa-exclamation-circle mr-1"></i>Les mots de passe ne correspondent pas</p>
+        </div>
+
+        <!-- Sélection de rôle -->
+        <p class="text-gray-300 text-sm font-semibold mb-3">
+          <i class="fas fa-user-tag text-gold mr-2"></i>Choisissez votre rôle
+        </p>
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div class="role-card selected" id="roleUser" onclick="selectRole('user')">
+            <div class="role-check"></div>
+            <div class="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-teal/20 to-teal/5 flex items-center justify-center mb-2">
+              <i class="fas fa-user text-teal text-xl"></i>
+            </div>
+            <p class="text-white font-bold text-sm">Utilisateur</p>
+            <p class="text-gray-400 text-xs mt-1">Accès standard</p>
+          </div>
+          <div class="role-card" id="roleAdmin" onclick="selectRole('admin')">
+            <div class="role-check"></div>
+            <div class="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center mb-2">
+              <i class="fas fa-user-shield text-gold text-xl"></i>
+            </div>
+            <p class="text-white font-bold text-sm">Administrateur</p>
+            <p class="text-gray-400 text-xs mt-1">Accès complet</p>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between">
+          <button type="button" class="btn-prev" onclick="prevStep(2)">
+            <i class="fas fa-arrow-left mr-2"></i> Retour
+          </button>
+          <button type="button" class="btn-next" onclick="nextStep(2)">
+            Continuer <i class="fas fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- ===== STEP 3: Confirmation ===== -->
+      <div class="form-step" id="step3">
+        <h3 class="text-white font-bold text-lg mb-1 text-center">Confirmation</h3>
+        <p class="text-gray-400 text-xs text-center mb-6">Vérifiez vos informations</p>
+
+        <!-- Summary Card -->
+        <div class="bg-gradient-to-b from-secondary/40 to-secondary/20 rounded-2xl p-6 mb-6 border border-white/5">
+          <div class="flex items-center space-x-4 mb-5">
+            <div class="w-14 h-14 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-user text-gold text-xl"></i>
+            </div>
+            <div>
+              <p class="text-white font-bold" id="summaryName">—</p>
+              <p class="text-gray-400 text-xs" id="summaryEmail">—</p>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex justify-between items-center py-2 border-b border-white/5">
+              <span class="text-gray-400 text-sm"><i class="fas fa-phone mr-2 text-gold/50"></i>Téléphone</span>
+              <span class="text-white text-sm font-medium" id="summaryPhone">—</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-white/5">
+              <span class="text-gray-400 text-sm"><i class="fas fa-user-tag mr-2 text-gold/50"></i>Rôle</span>
+              <span class="text-white text-sm font-medium" id="summaryRole">—</span>
+            </div>
+            <div class="flex justify-between items-center py-2">
+              <span class="text-gray-400 text-sm"><i class="fas fa-lock mr-2 text-gold/50"></i>Mot de passe</span>
+              <span class="text-white text-sm font-medium">••••••••</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terms & Conditions -->
+        <div class="mb-6">
+          <label class="flex items-start space-x-3 cursor-pointer">
+            <input type="checkbox" class="custom-checkbox mt-0.5" id="termsCheck">
+            <span class="text-gray-400 text-sm leading-relaxed">
+              J'accepte les <a href="#" class="link-gold font-medium">conditions d'utilisation</a> et la <a href="#" class="link-gold font-medium">politique de confidentialité</a> de TopoSarl.
+            </span>
+          </label>
+          <p class="error-msg ml-8" id="termsError"><i class="fas fa-exclamation-circle mr-1"></i>Vous devez accepter les conditions</p>
+        </div>
+
+        <!-- Newsletter -->
+        <div class="mb-8">
+          <label class="flex items-start space-x-3 cursor-pointer">
+            <input type="checkbox" class="custom-checkbox mt-0.5" id="newsletterCheck" checked>
+            <span class="text-gray-400 text-sm leading-relaxed">
+              Je souhaite recevoir les actualités et mises à jour de TopoSarl.
+            </span>
+          </label>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between">
+          <button type="button" class="btn-prev" onclick="prevStep(3)">
+            <i class="fas fa-arrow-left mr-2"></i> Retour
+          </button>
+          <button type="button" class="btn-next" id="submitBtn" onclick="handleSubmit()">
+            <i class="fas fa-user-plus mr-2"></i>Créer mon Compte
+          </button>
+        </div>
+      </div>
+
+      <!-- Divider & Social -->
+      <div class="divider my-8">
+        <span class="text-gray-500 text-xs tracking-wider uppercase">ou s'inscrire avec</span>
+      </div>
+
+      <div class="flex gap-3 mb-6">
+        <button class="social-btn" title="Google">
+          <i class="fab fa-google text-lg"></i>
+        </button>
+        <button class="social-btn" title="Microsoft">
+          <i class="fab fa-microsoft text-lg"></i>
+        </button>
+        <button class="social-btn" title="LinkedIn">
+          <i class="fab fa-linkedin-in text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Login Link -->
+      <p class="text-center text-gray-400 text-sm">
+        Déjà un compte ?
+        <a href="Connexion.html" class="link-gold font-semibold ml-1">
+          <i class="fas fa-sign-in-alt mr-1 text-xs"></i>Se connecter
+        </a>
+      </p>
+
+      <!-- Footer -->
+      <p class="text-center text-gray-600 text-xs mt-6">
+        © 2024 TopoSarl — Tous droits réservés
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== JAVASCRIPT ===== -->
+  <script>
+    // ===== PRELOADER =====
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('preloader').classList.add('hidden');
+      }, 1200);
+    });
+
+    // ===== PARTICLES =====
+    function createParticles() {
+      const container = document.getElementById('particles');
+      const colors = ['#F0A500', '#00B4D8', '#F5C518'];
+      for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        const size = Math.random() * 4 + 2;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        particle.style.cssText = `
+          width: ${size}px; height: ${size}px;
+          background: ${color};
+          left: ${Math.random() * 100}%;
+          animation-duration: ${Math.random() * 15 + 10}s;
+          animation-delay: ${Math.random() * 10}s;
+          box-shadow: 0 0 ${size * 3}px ${color};
+        `;
+        container.appendChild(particle);
+      }
+    }
+    createParticles();
+
+    // ===== VARIABLES =====
+    let currentStep = 1;
+    let selectedRole = 'user';
+
+    // ===== AVATAR UPLOAD =====
+    function handleAvatar(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('avatarPreview');
+          const upload = document.getElementById('avatarUpload');
+          preview.src = e.target.result;
+          upload.classList.add('has-image');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // ===== ROLE SELECTION =====
+    function selectRole(role) {
+      selectedRole = role;
+      document.getElementById('roleUser').classList.toggle('selected', role === 'user');
+      document.getElementById('roleAdmin').classList.toggle('selected', role === 'admin');
+    }
+
+    // ===== PASSWORD TOGGLE =====
+    function togglePassword(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+      }
+    }
+
+    // ===== PASSWORD STRENGTH =====
+    function checkPasswordStrength(password) {
+      const bars = [
+        document.getElementById('bar1'),
+        document.getElementById('bar2'),
+        document.getElementById('bar3'),
+        document.getElementById('bar4')
+      ];
+      const text = document.getElementById('strengthText');
+
+      // Reset
+      bars.forEach(b => b.className = 'strength-bar');
+
+      let strength = 0;
+      if (password.length >= 6) strength++;
+      if (password.length >= 10) strength++;
+      if (/[A-Z]/.test(password) && /[a-z]/.test(password)) strength++;
+      if (/[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)) strength++;
+
+      const levels = [
+        { cls: 'weak', text: 'Faible', color: '#EF4444' },
+        { cls: 'medium', text: 'Moyen', color: '#F59E0B' },
+        { cls: 'strong', text: 'Fort', color: '#10B981' },
+        { cls: 'strong', text: 'Très fort', color: '#10B981' }
+      ];
+
+      for (let i = 0; i < strength; i++) {
+        bars[i].classList.add(levels[Math.min(strength - 1, 3)].cls);
+      }
+
+      if (password.length === 0) {
+        text.textContent = 'Force du mot de passe';
+        text.style.color = '#6B7280';
+      } else {
+        const level = levels[Math.min(strength - 1, 3)] || levels[0];
+        text.textContent = level.text;
+        text.style.color = level.color;
+      }
+    }
+
+    // ===== STEP NAVIGATION =====
+    function updateStepIndicators() {
+      for (let i = 1; i <= 3; i++) {
+        const circle = document.getElementById(`stepCircle${i}`);
+        circle.classList.remove('active', 'completed');
+        circle.innerHTML = i;
+
+        if (i < currentStep) {
+          circle.classList.add('completed');
+          circle.innerHTML = '<i class="fas fa-check text-xs"></i>';
+        } else if (i === currentStep) {
+          circle.classList.add('active');
+        }
+      }
+
+      for (let i = 1; i <= 2; i++) {
+        const line = document.getElementById(`stepLine${i}`);
+        line.classList.toggle('active', i < currentStep);
+      }
+    }
+
+    function showStep(step) {
+      document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+      document.getElementById(`step${step}`).classList.add('active');
+      currentStep = step;
+      updateStepIndicators();
+    }
+
+    function nextStep(from) {
+      if (!validateStep(from)) return;
+
+      if (from === 2) {
+        // Populate summary
+        document.getElementById('summaryName').textContent =
+          document.getElementById('prenom').value + ' ' + document.getElementById('nom').value;
+        document.getElementById('summaryEmail').textContent = document.getElementById('email').value;
+        document.getElementById('summaryPhone').textContent = document.getElementById('telephone').value;
+        document.getElementById('summaryRole').textContent =
+          selectedRole === 'admin' ? '🛡️ Administrateur' : '👤 Utilisateur';
+      }
+
+      showStep(from + 1);
+    }
+
+    function prevStep(from) {
+      showStep(from - 1);
+    }
+
+    // ===== VALIDATION =====
+    function validateStep(step) {
+      let valid = true;
+      const card = document.querySelector('.register-card');
+
+      if (step === 1) {
+        const nom = document.getElementById('nom');
+        const prenom = document.getElementById('prenom');
+        const email = document.getElementById('email');
+        const tel = document.getElementById('telephone');
+
+        // Reset
+        [nom, prenom, email, tel].forEach(el => el.classList.remove('input-error'));
+        ['nomError', 'prenomError', 'emailError', 'telError'].forEach(id =>
+          document.getElementById(id).classList.remove('show'));
+
+        if (!nom.value.trim()) {
+          nom.classList.add('input-error');
+          document.getElementById('nomError').classList.add('show');
+          valid = false;
+        }
+        if (!prenom.value.trim()) {
+          prenom.classList.add('input-error');
+          document.getElementById('prenomError').classList.add('show');
+          valid = false;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+          email.classList.add('input-error');
+          document.getElementById('emailError').classList.add('show');
+          valid = false;
+        }
+        if (!/^[\d\s+()-]{8,}$/.test(tel.value)) {
+          tel.classList.add('input-error');
+          document.getElementById('telError').classList.add('show');
+          valid = false;
+        }
+      }
+
+      if (step === 2) {
+        const password = document.getElementById('password');
+        const confirm = document.getElementById('confirmPassword');
+
+        password.classList.remove('input-error');
+        confirm.classList.remove('input-error');
+        document.getElementById('passwordError').classList.remove('show');
+        document.getElementById('confirmError').classList.remove('show');
+
+        if (password.value.length < 6) {
+          password.classList.add('input-error');
+          document.getElementById('passwordError').classList.add('show');
+          valid = false;
+        }
+        if (password.value !== confirm.value || !confirm.value) {
+          confirm.classList.add('input-error');
+          document.getElementById('confirmError').classList.add('show');
+          valid = false;
+        }
+      }
+
+      if (!valid) {
+        card.classList.add('shake');
+        setTimeout(() => card.classList.remove('shake'), 500);
+      }
+
+      return valid;
+    }
+
+    // ===== SUBMIT =====
+    function handleSubmit() {
+      const termsCheck = document.getElementById('termsCheck');
+      const termsError = document.getElementById('termsError');
+      const submitBtn = document.getElementById('submitBtn');
+
+      termsError.classList.remove('show');
+
+      if (!termsCheck.checked) {
+        termsError.classList.add('show');
+        document.querySelector('.register-card').classList.add('shake');
+        setTimeout(() => document.querySelector('.register-card').classList.remove('shake'), 500);
+        return;
+      }
+
+      // Loading
+      submitBtn.classList.add('loading');
+
+      setTimeout(() => {
+        submitBtn.classList.remove('loading');
+
+        // Success
+        const overlay = document.getElementById('successOverlay');
+        overlay.classList.add('active');
+
+        // Confetti
+        createConfetti();
+
+        // Redirect
+        setTimeout(() => {
+          window.location.href = 'Connexion.html';
+        }, 3000);
+      }, 2000);
+    }
+
+    // ===== CONFETTI =====
+    function createConfetti() {
+      const colors = ['#F0A500', '#00B4D8', '#F5C518', '#10B981', '#EF4444', '#8B5CF6', '#FFFFFF'];
+      for (let i = 0; i < 80; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti-piece');
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const size = Math.random() * 8 + 5;
+        const isCircle = Math.random() > 0.5;
+
+        confetti.style.cssText = `
+          left: ${Math.random() * 100}vw;
+          top: -10px;
+          width: ${size}px;
+          height: ${isCircle ? size : size * 2.5}px;
+          background: ${color};
+          border-radius: ${isCircle ? '50%' : '2px'};
+          animation: confettiFall ${Math.random() * 2 + 2}s linear ${Math.random() * 1}s forwards;
+        `;
+        document.body.appendChild(confetti);
+
+        setTimeout(() => confetti.remove(), 4000);
+      }
+    }
+
+    // ===== INPUT FOCUS ANIMATIONS =====
+    document.querySelectorAll('.input-field').forEach(input => {
+      input.addEventListener('focus', () => {
+        input.parentElement.style.transform = 'translateY(-2px)';
+        input.parentElement.style.transition = 'transform 0.3s ease';
+      });
+      input.addEventListener('blur', () => {
+        input.parentElement.style.transform = 'translateY(0)';
+      });
+    });
+
+    // ===== REAL-TIME VALIDATION FEEDBACK =====
+    document.getElementById('email').addEventListener('input', function() {
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value)) {
+        this.classList.remove('input-error');
+        this.style.borderColor = '#10B981';
+        document.getElementById('emailError').classList.remove('show');
+      } else {
+        this.style.borderColor = '';
+      }
+    });
+
+    document.getElementById('confirmPassword').addEventListener('input', function() {
+      const password = document.getElementById('password').value;
+      if (this.value && this.value === password) {
+        this.classList.remove('input-error');
+        this.style.borderColor = '#10B981';
+        document.getElementById('confirmError').classList.remove('show');
+      } else {
+        this.style.borderColor = '';
+      }
+    });
+  </script>
+
+</body>
+</html>

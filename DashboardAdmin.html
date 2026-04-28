@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title>Admin Dashboard — TopoSarl</title>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            poppins: ['Poppins', 'sans-serif'],
+            playfair: ['Playfair Display', 'serif'],
+          },
+          colors: {
+            primary: '#0F2027',
+            secondary: '#203A43',
+            accent: '#2C5364',
+            gold: '#F0A500',
+            goldLight: '#F5C518',
+            teal: '#00B4D8',
+            darkBg: '#0A0A0A',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Poppins', sans-serif; overflow-x: hidden; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0F2027; }
+    ::-webkit-scrollbar-thumb { background: #F0A500; border-radius: 10px; }
+
+    /* ===== PRELOADER ===== */
+    #preloader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #0F2027;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+    #preloader.hidden { opacity: 0; visibility: hidden; }
+    .loader-ring {
+      width: 70px; height: 70px; position: relative;
+      border: 4px solid transparent;
+      border-top: 4px solid #F0A500;
+      border-right: 4px solid #00B4D8;
+      border-radius: 50%;
+      animation: spinLoader 1s linear infinite;
+    }
+    .loader-ring::before {
+      content: ''; position: absolute;
+      top: 8px; left: 8px; right: 8px; bottom: 8px;
+      border: 4px solid transparent;
+      border-top: 4px solid #F0A500;
+      border-left: 4px solid #00B4D8;
+      border-radius: 50%;
+      animation: spinLoader 0.6s linear reverse infinite;
+    }
+    @keyframes spinLoader { to { transform: rotate(360deg); } }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      position: fixed; left: 0; top: 0;
+      width: 280px; height: 100vh;
+      background: linear-gradient(180deg, #0F2027 0%, #203A43 100%);
+      border-right: 1px solid rgba(240, 165, 0, 0.1);
+      z-index: 100;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+    }
+    .sidebar.collapsed { width: 80px; }
+    .sidebar.collapsed .sidebar-text { opacity: 0; width: 0; overflow: hidden; }
+    .sidebar.collapsed .sidebar-section-title { opacity: 0; height: 0; overflow: hidden; }
+    .sidebar.collapsed .sidebar-support { opacity: 0; height: 0; overflow: hidden; margin: 0; padding: 0; }
+
+    .sidebar-link {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 20px;
+      color: #9CA3AF;
+      text-decoration: none;
+      border-radius: 12px;
+      margin: 2px 12px;
+      transition: all 0.3s ease;
+      position: relative;
+      white-space: nowrap;
+    }
+    .sidebar-link:hover {
+      background: rgba(240, 165, 0, 0.08);
+      color: #F0A500;
+    }
+    .sidebar-link.active {
+      background: linear-gradient(135deg, rgba(240, 165, 0, 0.15), rgba(240, 165, 0, 0.05));
+      color: #F0A500;
+      font-weight: 600;
+    }
+    .sidebar-link.active::before {
+      content: '';
+      position: absolute; left: 0; top: 50%;
+      transform: translateY(-50%);
+      width: 3px; height: 60%;
+      background: #F0A500;
+      border-radius: 0 3px 3px 0;
+    }
+    .sidebar-link i { width: 20px; text-align: center; flex-shrink: 0; }
+
+    .sidebar-section-title {
+      padding: 20px 24px 8px;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #4B5563;
+      font-weight: 700;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-badge {
+      background: #EF4444;
+      color: white;
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 9999px;
+      margin-left: auto;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main-content {
+      margin-left: 280px;
+      min-height: 100vh;
+      transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .main-content.expanded { margin-left: 80px; }
+
+    /* ===== TOP BAR ===== */
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(15, 32, 39, 0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(240, 165, 0, 0.08);
+      padding: 16px 32px;
+    }
+
+    /* ===== SEARCH ===== */
+    .search-input {
+      background: rgba(15, 32, 39, 0.5);
+      border: 1px solid rgba(240, 165, 0, 0.1);
+      border-radius: 12px;
+      padding: 10px 16px 10px 42px;
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+      outline: none;
+      width: 280px;
+    }
+    .search-input:focus {
+      border-color: #F0A500;
+      box-shadow: 0 0 20px rgba(240, 165, 0, 0.1);
+      width: 340px;
+    }
+    .search-input::placeholder { color: #4B5563; }
+
+    /* ===== STAT CARDS ===== */
+    .stat-card {
+      position: relative;
+      background: linear-gradient(135deg, rgba(32, 58, 67, 0.5), rgba(44, 83, 100, 0.3));
+      border: 1px solid rgba(240, 165, 0, 0.08);
+      border-radius: 1.25rem;
+      padding: 24px;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .stat-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(240, 165, 0, 0.25);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute; top: 0; right: 0;
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      opacity: 0.05;
+      transition: all 0.4s ease;
+    }
+    .stat-card:hover::after { opacity: 0.1; transform: scale(1.2); }
+    .stat-card.gold::after { background: #F0A500; }
+    .stat-card.teal::after { background: #00B4D8; }
+    .stat-card.green::after { background: #10B981; }
+    .stat-card.red::after { background: #EF4444; }
+    .stat-card.purple::after { background: #8B5CF6; }
+    .stat-card.blue::after { background: #3B82F6; }
+
+    /* ===== SPARKLINE ===== */
+    .sparkline {
+      display: flex; align-items: flex-end;
+      gap: 2px; height: 30px;
+    }
+    .sparkline-bar {
+      width: 4px; border-radius: 2px;
+      transition: all 0.5s ease;
+    }
+
+    /* ===== CHART CARD ===== */
+    .chart-card {
+      background: linear-gradient(135deg, rgba(32, 58, 67, 0.4), rgba(44, 83, 100, 0.2));
+      border: 1px solid rgba(240, 165, 0, 0.08);
+      border-radius: 1.25rem;
+      padding: 24px;
+      transition: all 0.4s ease;
+    }
+    .chart-card:hover {
+      border-color: rgba(240, 165, 0, 0.2);
+    }
+
+    /* ===== BAR CHART ===== */
+    .bar-chart {
+      display: flex; align-items: flex-end;
+      gap: 6px; height: 200px;
+      padding-top: 20px;
+    }
+    .bar-wrapper {
+      flex: 1; display: flex;
+      flex-direction: column; align-items: center;
+      height: 100%; justify-content: flex-end;
+    }
+    .bar {
+      width: 100%; max-width: 36px;
+      border-radius: 6px 6px 0 0;
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      cursor: pointer;
+      min-height: 4px;
+    }
+    .bar:hover { opacity: 0.8; transform: scaleY(1.05); transform-origin: bottom; }
+    .bar-label {
+      font-size: 0.6rem; color: #6B7280;
+      margin-top: 8px; text-align: center;
+    }
+    .bar-value {
+      font-size: 0.6rem; color: #9CA3AF;
+      margin-bottom: 4px; font-weight: 600;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .bar-wrapper:hover .bar-value { opacity: 1; }
+
+    /* ===== DONUT CHART ===== */
+    .donut-chart {
+      position: relative;
+      width: 160px; height: 160px;
+      margin: 0 auto;
+    }
+    .donut-chart svg { transform: rotate(-90deg); }
+    .donut-center {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+
+    /* ===== TABLE ===== */
+    .dashboard-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    .dashboard-table thead th {
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #6B7280;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(240, 165, 0, 0.1);
+    }
+    .dashboard-table tbody tr {
+      transition: all 0.3s ease;
+    }
+    .dashboard-table tbody tr:hover {
+      background: rgba(240, 165, 0, 0.04);
+    }
+    .dashboard-table tbody td {
+      padding: 14px 16px;
+      font-size: 0.85rem;
+      color: #D1D5DB;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    /* ===== STATUS BADGE ===== */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .status-badge.active {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10B981;
+    }
+    .status-badge.inactive {
+      background: rgba(239, 68, 68, 0.15);
+      color: #EF4444;
+    }
+    .status-badge.pending {
+      background: rgba(240, 165, 0, 0.15);
+      color: #F0A500;
+    }
+    .status-badge.suspended {
+      background: rgba(107, 114, 128, 0.15);
+      color: #9CA3AF;
+    }
+    .status-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* ===== ROLE BADGE ===== */
+    .role-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 0.65rem;
+      font-weight: 600;
+    }
+    .role-badge.admin {
+      background: rgba(240, 165, 0, 0.15);
+      color: #F0A500;
+    }
+    .role-badge.user {
+      background: rgba(0, 180, 216, 0.15);
+      color: #00B4D8;
+    }
+    .role-badge.editor {
+      background: rgba(139, 92, 246, 0.15);
+      color: #8B5CF6;
+    }
+
+    /* ===== NOTIFICATION DOT ===== */
+    .notif-dot {
+      position: absolute; top: -2px; right: -2px;
+      width: 10px; height: 10px;
+      background: #EF4444;
+      border-radius: 50%;
+      border: 2px solid #0F2027;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+    }
+
+    /* ===== NOTIFICATION PANEL ===== */
+    .notif-panel {
+      position: absolute; top: calc(100% + 12px); right: 0;
+      width: 360px; max-height: 400px;
+      background: linear-gradient(135deg, #0F2027, #203A43);
+      border: 1px solid rgba(240, 165, 0, 0.15);
+      border-radius: 1.25rem;
+      overflow: hidden;
+      opacity: 0; visibility: hidden;
+      transform: translateY(-10px) scale(0.95);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 200;
+    }
+    .notif-panel.active {
+      opacity: 1; visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+    .notif-item {
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      transition: background 0.3s ease;
+      cursor: pointer;
+    }
+    .notif-item:hover { background: rgba(240, 165, 0, 0.05); }
+    .notif-item.unread { border-left: 3px solid #F0A500; }
+
+    /* ===== PROFILE DROPDOWN ===== */
+    .profile-dropdown {
+      position: absolute; top: calc(100% + 12px); right: 0;
+      width: 240px;
+      background: linear-gradient(135deg, #0F2027, #203A43);
+      border: 1px solid rgba(240, 165, 0, 0.15);
+      border-radius: 1.25rem;
+      overflow: hidden;
+      opacity: 0; visibility: hidden;
+      transform: translateY(-10px) scale(0.95);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 200;
+    }
+    .profile-dropdown.active {
+      opacity: 1; visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    /* ===== WELCOME BANNER ===== */
+    .welcome-banner {
+      position: relative; overflow: hidden;
+      background: linear-gradient(135deg, rgba(240, 165, 0, 0.12), rgba(0, 180, 216, 0.08));
+      border: 1px solid rgba(240, 165, 0, 0.15);
+      border-radius: 1.5rem;
+    }
+    .welcome-banner::before {
+      content: '';
+      position: absolute; top: -50%; right: -20%;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(240, 165, 0, 0.08), transparent 70%);
+      animation: floatShape 8s ease-in-out infinite;
+    }
+    @keyframes floatShape {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-30px, 20px); }
+    }
+
+    /* ===== QUICK ACTION ===== */
+    .quick-action {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 20px 12px;
+      background: rgba(32, 58, 67, 0.3);
+      border: 1px solid rgba(240, 165, 0, 0.06);
+      border-radius: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .quick-action:hover {
+      background: rgba(240, 165, 0, 0.06);
+      border-color: rgba(240, 165, 0, 0.2);
+      transform: translateY(-3px);
+    }
+
+    /* ===== SERVER STATUS ===== */
+    .server-bar {
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+    }
+    .server-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ===== USER ROW ACTIONS ===== */
+    .action-btn {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+    }
+    .action-btn:hover { transform: scale(1.1); }
+    .action-btn.edit:hover { background: rgba(0, 180, 216, 0.15); color: #00B4D8; }
+    .action-btn.delete:hover { background: rgba(239, 68, 68, 0.15); color: #EF4444; }
+    .action-btn.view:hover { background: rgba(16, 185, 129, 0.15); color: #10B981; }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 9998;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden;
+      transition: all 0.4s ease;
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-content {
+      background: linear-gradient(135deg, #0F2027, #203A43);
+      border: 1px solid rgba(240, 165, 0, 0.2);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      max-width: 500px; width: 90%;
+      max-height: 90vh; overflow-y: auto;
+      transform: scale(0.8) translateY(30px);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .modal-overlay.active .modal-content {
+      transform: scale(1) translateY(0);
+    }
+
+    /* ===== INPUTS ===== */
+    .modal-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(15, 32, 39, 0.5);
+      border: 1px solid rgba(240, 165, 0, 0.12);
+      border-radius: 0.75rem;
+      color: #FFFFFF;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+    .modal-input:focus {
+      border-color: #F0A500;
+      box-shadow: 0 0 20px rgba(240, 165, 0, 0.1);
+    }
+    .modal-input::placeholder { color: #4B5563; }
+
+    .modal-select {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(15, 32, 39, 0.5);
+      border: 1px solid rgba(240, 165, 0, 0.12);
+      border-radius: 0.75rem;
+      color: #FFFFFF;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+    }
+    .modal-select option { background: #0F2027; color: #fff; }
+
+    /* ===== ANIMATIONS ===== */
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+
+    /* ===== MOBILE SIDEBAR ===== */
+    .mobile-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 99;
+      opacity: 0; visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    .mobile-overlay.active { opacity: 1; visibility: visible; }
+
+    /* ===== LIVE DOT ===== */
+    .live-dot {
+      width: 8px; height: 8px;
+      background: #10B981;
+      border-radius: 50%;
+      display: inline-block;
+      animation: livePulse 1.5s infinite;
+    }
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* ===== TABS ===== */
+    .tab-btn {
+      padding: 8px 20px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      background: transparent;
+      color: #6B7280;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(240, 165, 0, 0.15), rgba(240, 165, 0, 0.05));
+      color: #F0A500;
+    }
+    .tab-btn:hover:not(.active) {
+      color: #D1D5DB;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tab-content { display: none; animation: fadeIn 0.4s ease; }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .sidebar { transform: translateX(-100%); z-index: 200; }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .main-content { margin-left: 0 !important; }
+    }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed; bottom: 30px; right: 30px;
+      background: linear-gradient(135deg, #0F2027, #203A43);
+      border: 1px solid rgba(240, 165, 0, 0.2);
+      border-radius: 1rem;
+      padding: 16px 24px;
+      display: flex; align-items: center; gap: 12px;
+      z-index: 10000;
+      transform: translateX(120%);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+    .toast.show { transform: translateX(0); }
+    .toast.success { border-left: 4px solid #10B981; }
+    .toast.error { border-left: 4px solid #EF4444; }
+    .toast.warning { border-left: 4px solid #F0A500; }
+  </style>
+</head>
+
+<body class="bg-darkBg text-white font-poppins">
+
+  <!-- ===== PRELOADER ===== -->
+  <!-- <div id="preloader">
+    <div class="relative">
+      <div class="loader-ring"></div>
+      <p class="text-gold text-sm mt-4 text-center font-poppins tracking-widest">ADMIN</p>
+    </div>
+  </div> -->
+
+  <!-- ===== TOAST NOTIFICATION ===== -->
+  <div class="toast success" id="toast">
+    <div class="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0">
+      <i class="fas fa-check text-green-400 text-sm"></i>
+    </div>
+    <div>
+      <p class="text-white text-sm font-semibold" id="toastTitle">Succès</p>
+      <p class="text-gray-400 text-xs" id="toastMsg">Action effectuée avec succès</p>
+    </div>
+  </div>
+
+  <!-- ===== MOBILE OVERLAY ===== -->
+  <div class="mobile-overlay" id="mobileOverlay" onclick="toggleMobileSidebar()"></div>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <!-- Logo -->
+    <div class="flex items-center gap-3 px-6 py-6 border-b border-white/5">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-gold to-goldLight flex items-center justify-center flex-shrink-0">
+        <i class="fas fa-mountain text-primary text-base"></i>
+      </div>
+      <div class="sidebar-text">
+        <h1 class="text-lg font-bold text-white">TOPO<span class="text-gold">SARL</span></h1>
+        <p class="text-[10px] text-gold/60 tracking-widest uppercase font-semibold">
+          <i class="fas fa-shield-alt mr-1"></i>Admin Panel
+        </p>
+      </div>
+    </div>
+
+    <!-- Main Nav -->
+    <div class="sidebar-section-title">Principal</div>
+    <nav class="px-2">
+      <a href="#" class="sidebar-link active" onclick="switchTab('dashboard')">
+        <i class="fas fa-th-large"></i>
+        <span class="sidebar-text text-sm">Tableau de Bord</span>
+      </a>
+      <a href="#" class="sidebar-link" onclick="switchTab('users')">
+        <i class="fas fa-users"></i>
+        <span class="sidebar-text text-sm">Utilisateurs</span>
+        <span class="sidebar-badge sidebar-text">47</span>
+      </a>
+      <a href="#" class="sidebar-link" onclick="switchTab('projects')">
+        <i class="fas fa-project-diagram"></i>
+        <span class="sidebar-text text-sm">Projets</span>
+      </a>
+      <a href="#" class="sidebar-link">
+        <i class="fas fa-map-marked-alt"></i>
+        <span class="sidebar-text text-sm">Levés</span>
+      </a>
+      <a href="#" class="sidebar-link">
+        <i class="fas fa-file-alt"></i>
+        <span class="sidebar-text text-sm">Rapports</span>
+        <span class="sidebar-badge sidebar-text" style="background:#F0A500;color:#0F2027;">5</span>
+      </a>
+    </nav>
+
+    <!-- Gestion -->
+    <div class="sidebar-section-title">Gestion</div>
+    <nav class="px-2">
+      <a href="#" class="sidebar-link">
+        <i class="fas fa-database"></i>
+        <span class="sidebar-text text-sm">Données SIG</span>
+      </a>
+      <a href="#" class="sidebar-link">
+        <i class="fas fa-tools"></i>
+        <span class="sidebar-text text-sm">Équipements</span>
+      </a>
+      <a href="#" class="sidebar-link">
+        <i class="fas fa-money-bill-wave"></i>
+        <span class="sidebar-text text-sm">Facturation</span>
+      </a>
+      <a href="#" class="sidebar-link">
+        <i class="fas fa-chart-bar"></i>
+        <span class="sidebar-text text-sm">Statistiques</span>
+      </a>
+    </nav>
+
+    <!-- Système -->
+    <div class="sidebar-section-title">Système</div>
+    <nav class="px-2">
+      <a href="#" class="sidebar-link">
+        <i class="fas fa-server"></i>
+        <span class="sidebar-text text-sm">Serveur & Monitoring</span>
+      </a>
+      <a href="#" class="sidebar-link">
+        <i class="fas fa-shield-alt"></i>
+        <span class="sidebar-text text-sm">Sécurité</span>
+      </a>
+      <a href="#" class="sidebar-link">
+        <i class="fas fa-cog"></i>
+        <span class="sidebar-text text-sm">Paramètres</span>
+      </a>
+      <a href="#" class="sidebar-link">
+        <i class="fas fa-clipboard-list"></i>
+        <span class="sidebar-text text-sm">Logs Système</span>
+      </a>
+    </nav>
+
+    <!-- Compte -->
+    <div class="sidebar-section-title">Compte</div>
+    <nav class="px-2">
+      <a href="#" class="sidebar-link">
+        <i class="fas fa-user-circle"></i>
+        <span class="sidebar-text text-sm">Mon Profil</span>
+      </a>
+      <a href="Connexion.html" class="sidebar-link">
+        <i class="fas fa-sign-out-alt"></i>
+        <span class="sidebar-text text-sm text-red-400">Déconnexion</span>
+      </a>
+    </nav>
+
+    <!-- Support Card -->
+    <div class="sidebar-support mx-4 mt-6 mb-4 p-4 rounded-2xl bg-gradient-to-br from-gold/10 to-teal/5 border border-gold/10">
+      <div class="sidebar-text">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-8 h-8 rounded-lg bg-gold/20 flex items-center justify-center">
+            <i class="fas fa-crown text-gold text-xs"></i>
+          </div>
+          <p class="text-white text-xs font-semibold">Admin Premium</p>
+        </div>
+        <p class="text-gray-400 text-[11px] mb-3">Accès complet à toutes les fonctionnalités</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="main-content" id="mainContent">
+
+    <!-- ===== TOP BAR ===== -->
+    <header class="topbar">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <button onclick="toggleSidebar()" class="hidden lg:flex w-10 h-10 items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-gray-400 hover:text-gold">
+            <i class="fas fa-bars"></i>
+          </button>
+          <button onclick="toggleMobileSidebar()" class="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-gray-400 hover:text-gold">
+            <i class="fas fa-bars"></i>
+          </button>
+
+          <div class="relative hidden md:block">
+            <!-- <i class="fas fa-search absolute left-14 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i> -->
+            <input type="text" class="search-input" placeholder="Rechercher utilisateur, projet...">
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Live Status -->
+          <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/20">
+            <span class="live-dot"></span>
+            <span class="text-green-400 text-xs font-semibold">Système en ligne</span>
+          </div>
+
+          <!-- Notifications -->
+          <div class="relative">
+            <button onclick="toggleNotifPanel()" class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-400 hover:text-gold hover:bg-white/10 transition-all relative">
+              <i class="fas fa-bell"></i>
+              <span class="notif-dot"></span>
+            </button>
+            <div class="notif-panel" id="notifPanel">
+              <div class="p-4 border-b border-white/5 flex items-center justify-between">
+                <h4 class="text-white font-bold text-sm">Notifications</h4>
+                <span class="text-gold text-xs font-semibold cursor-pointer">Tout marquer lu</span>
+              </div>
+              <div class="overflow-y-auto max-h-[300px]">
+                <div class="notif-item unread">
+                  <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <i class="fas fa-exclamation-triangle text-red-400 text-xs"></i>
+                    </div>
+                    <div>
+                      <p class="text-white text-sm font-medium">Alerte sécurité</p>
+                      <p class="text-gray-400 text-xs mt-0.5">3 tentatives de connexion échouées</p>
+                      <p class="text-gray-500 text-[10px] mt-1">Il y a 2 min</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="notif-item unread">
+                  <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <i class="fas fa-user-plus text-gold text-xs"></i>
+                    </div>
+                    <div>
+                      <p class="text-white text-sm font-medium">Nouvel utilisateur inscrit</p>
+                      <p class="text-gray-400 text-xs mt-0.5">Karim M. attend une validation</p>
+                      <p class="text-gray-500 text-[10px] mt-1">Il y a 30 min</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="notif-item">
+                  <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-teal/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <i class="fas fa-server text-teal text-xs"></i>
+                    </div>
+                    <div>
+                      <p class="text-white text-sm font-medium">Backup terminé</p>
+                      <p class="text-gray-400 text-xs mt-0.5">Sauvegarde automatique réussie</p>
+                      <p class="text-gray-500 text-[10px] mt-1">Il y a 2 heures</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile -->
+          <div class="relative">
+            <button onclick="toggleProfileDropdown()" class="flex items-center gap-3 pl-3 pr-1 py-1 rounded-xl bg-white/5 hover:bg-white/10 transition-all">
+              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-gold to-goldLight flex items-center justify-center">
+                <span class="text-primary font-bold text-xs">AD</span>
+              </div>
+              <div class="hidden md:block text-left">
+                <p class="text-white text-sm font-semibold leading-tight">Admin</p>
+                <p class="text-gold/60 text-[10px] font-semibold">Super Admin</p>
+              </div>
+              <i class="fas fa-chevron-down text-gray-400 text-[10px] hidden md:block mr-2"></i>
+            </button>
+            <div class="profile-dropdown" id="profileDropdown">
+              <div class="p-4 border-b border-white/5">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-gold to-goldLight flex items-center justify-center">
+                    <span class="text-primary font-bold text-lg">AD</span>
+                  </div>
+                  <div>
+                    <p class="text-white font-bold text-sm">Directeur</p>
+                    <p class="text-gray-400 text-xs">admin@toposarl.com</p>
+                  </div>
+                </div>
+              </div>
+              <div class="p-2">
+                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-gold hover:bg-white/5 transition-all text-sm">
+                  <i class="fas fa-user w-4"></i> Mon Profil
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-gold hover:bg-white/5 transition-all text-sm">
+                  <i class="fas fa-cog w-4"></i> Paramètres
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-gold hover:bg-white/5 transition-all text-sm">
+                  <i class="fas fa-clipboard-list w-4"></i> Logs
+                </a>
+                <div class="border-t border-white/5 mt-1 pt-1">
+                  <a href="Connexion.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-all text-sm">
+                    <i class="fas fa-sign-out-alt w-4"></i> Déconnexion
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== DASHBOARD CONTENT ===== -->
+    <main class="p-6 lg:p-8">
+
+      <!-- ===== TAB: DASHBOARD ===== -->
+      <div class="tab-content active" id="tab-dashboard">
+
+        <!-- Welcome Banner -->
+        <div class="welcome-banner p-6 lg:p-8 mb-8 reveal">
+          <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-2xl lg:text-3xl font-playfair font-black text-white mb-2">
+                Panneau <span class="text-gold">Administrateur</span> 🛡️
+              </h2>
+              <p class="text-gray-400 text-sm max-w-lg">
+                Bienvenue, Directeur. Le système fonctionne normalement. <span class="text-gold font-semibold">47 utilisateurs</span> actifs, <span class="text-teal font-semibold">24 projets</span> en cours.
+              </p>
+            </div>
+            <div class="flex items-center gap-3 flex-shrink-0">
+              <span class="text-gray-400 text-xs" id="currentDate"></span>
+              <button class="px-5 py-2.5 bg-gradient-to-r from-gold to-goldLight text-primary font-bold text-sm rounded-xl hover:shadow-lg hover:shadow-gold/30 transition-all hover:-translate-y-0.5">
+                <i class="fas fa-plus mr-2"></i>Nouveau Projet
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Cards Row 1 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="stat-card gold reveal" style="transition-delay:0.1s;">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-12 h-12 rounded-xl bg-gold/15 flex items-center justify-center">
+                <i class="fas fa-users text-gold text-lg"></i>
+              </div>
+              <div class="sparkline">
+                <div class="sparkline-bar bg-gold/30" style="height:40%"></div>
+                <div class="sparkline-bar bg-gold/40" style="height:55%"></div>
+                <div class="sparkline-bar bg-gold/50" style="height:45%"></div>
+                <div class="sparkline-bar bg-gold/60" style="height:70%"></div>
+                <div class="sparkline-bar bg-gold/70" style="height:65%"></div>
+                <div class="sparkline-bar bg-gold" style="height:85%"></div>
+              </div>
+            </div>
+            <p class="text-3xl font-black text-white counter" data-target="47">0</p>
+            <p class="text-gray-400 text-xs mt-1">Utilisateurs Totaux</p>
+            <div class="flex items-center gap-1 mt-3">
+              <span class="text-green-400 text-xs font-semibold"><i class="fas fa-arrow-up mr-1"></i>8%</span>
+              <span class="text-gray-500 text-xs">ce mois</span>
+            </div>
+          </div>
+
+          <div class="stat-card teal reveal" style="transition-delay:0.2s;">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-12 h-12 rounded-xl bg-teal/15 flex items-center justify-center">
+                <i class="fas fa-project-diagram text-teal text-lg"></i>
+              </div>
+              <div class="sparkline">
+                <div class="sparkline-bar bg-teal/30" style="height:50%"></div>
+                <div class="sparkline-bar bg-teal/40" style="height:60%"></div>
+                <div class="sparkline-bar bg-teal/50" style="height:55%"></div>
+                <div class="sparkline-bar bg-teal/60" style="height:75%"></div>
+                <div class="sparkline-bar bg-teal/70" style="height:80%"></div>
+                <div class="sparkline-bar bg-teal" style="height:90%"></div>
+              </div>
+            </div>
+            <p class="text-3xl font-black text-white counter" data-target="24">0</p>
+            <p class="text-gray-400 text-xs mt-1">Projets Actifs</p>
+            <div class="flex items-center gap-1 mt-3">
+              <span class="text-green-400 text-xs font-semibold"><i class="fas fa-arrow-up mr-1"></i>15%</span>
+              <span class="text-gray-500 text-xs">ce mois</span>
+            </div>
+          </div>
+
+          <div class="stat-card green reveal" style="transition-delay:0.3s;">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-12 h-12 rounded-xl bg-green-500/15 flex items-center justify-center">
+                <i class="fas fa-money-bill-wave text-green-400 text-lg"></i>
+              </div>
+              <div class="sparkline">
+                <div class="sparkline-bar bg-green-500/30" style="height:35%"></div>
+                <div class="sparkline-bar bg-green-500/40" style="height:50%"></div>
+                <div class="sparkline-bar bg-green-500/50" style="height:60%"></div>
+                <div class="sparkline-bar bg-green-500/60" style="height:70%"></div>
+                <div class="sparkline-bar bg-green-500/70" style="height:85%"></div>
+                <div class="sparkline-bar bg-green-500" style="height:95%"></div>
+              </div>
+            </div>
+            <p class="text-3xl font-black text-white">2.4<span class="text-lg">M</span></p>
+            <p class="text-gray-400 text-xs mt-1">Revenus (DA)</p>
+            <div class="flex items-center gap-1 mt-3">
+              <span class="text-green-400 text-xs font-semibold"><i class="fas fa-arrow-up mr-1"></i>22%</span>
+              <span class="text-gray-500 text-xs">ce mois</span>
+            </div>
+          </div>
+
+          <div class="stat-card red reveal" style="transition-delay:0.4s;">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-12 h-12 rounded-xl bg-red-500/15 flex items-center justify-center">
+                <i class="fas fa-exclamation-triangle text-red-400 text-lg"></i>
+              </div>
+              <div class="sparkline">
+                <div class="sparkline-bar bg-red-500/30" style="height:80%"></div>
+                <div class="sparkline-bar bg-red-500/40" style="height:60%"></div>
+                <div class="sparkline-bar bg-red-500/50" style="height:50%"></div>
+                <div class="sparkline-bar bg-red-500/60" style="height:40%"></div>
+                <div class="sparkline-bar bg-red-500/70" style="height:30%"></div>
+                <div class="sparkline-bar bg-red-500" style="height:20%"></div>
+              </div>
+            </div>
+            <p class="text-3xl font-black text-white counter" data-target="3">0</p>
+            <p class="text-gray-400 text-xs mt-1">Alertes Actives</p>
+            <div class="flex items-center gap-1 mt-3">
+              <span class="text-green-400 text-xs font-semibold"><i class="fas fa-arrow-down mr-1"></i>40%</span>
+              <span class="text-gray-500 text-xs">ce mois</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid lg:grid-cols-3 gap-6 mb-8">
+          <!-- Bar Chart -->
+          <div class="chart-card lg:col-span-2 reveal" style="transition-delay:0.2s;">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="text-white font-bold text-lg">Revenus Mensuels</h3>
+                <p class="text-gray-400 text-xs mt-0.5">En milliers de DA</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="px-3 py-1 rounded-lg bg-gold/10 text-gold text-xs font-semibold">2024</span>
+                <span class="px-3 py-1 rounded-lg bg-white/5 text-gray-400 text-xs hover:bg-white/10 cursor-pointer">2023</span>
+              </div>
+            </div>
+            <div class="bar-chart">
+              <div class="bar-wrapper"><span class="bar-value">180</span><div class="bar bg-gradient-to-t from-gold/60 to-gold" style="height:60%"></div><span class="bar-label">Jan</span></div>
+              <div class="bar-wrapper"><span class="bar-value">220</span><div class="bar bg-gradient-to-t from-gold/60 to-gold" style="height:73%"></div><span class="bar-label">Fév</span></div>
+              <div class="bar-wrapper"><span class="bar-value">195</span><div class="bar bg-gradient-to-t from-gold/60 to-gold" style="height:65%"></div><span class="bar-label">Mar</span></div>
+              <div class="bar-wrapper"><span class="bar-value">280</span><div class="bar bg-gradient-to-t from-teal/60 to-teal" style="height:93%"></div><span class="bar-label">Avr</span></div>
+              <div class="bar-wrapper"><span class="bar-value">250</span><div class="bar bg-gradient-to-t from-teal/60 to-teal" style="height:83%"></div><span class="bar-label">Mai</span></div>
+              <div class="bar-wrapper"><span class="bar-value">300</span><div class="bar bg-gradient-to-t from-gold/60 to-gold" style="height:100%"></div><span class="bar-label">Jun</span></div>
+              <div class="bar-wrapper"><span class="bar-value">240</span><div class="bar bg-gradient-to-t from-gold/60 to-gold" style="height:80%"></div><span class="bar-label">Jul</span></div>
+              <div class="bar-wrapper"><span class="bar-value">210</span><div class="bar bg-gradient-to-t from-gold/60 to-gold" style="height:70%"></div><span class="bar-label">Aoû</span></div>
+              <div class="bar-wrapper"><span class="bar-value">265</span><div class="bar bg-gradient-to-t from-teal/60 to-teal" style="height:88%"></div><span class="bar-label">Sep</span></div>
+              <div class="bar-wrapper"><span class="bar-value">290</span><div class="bar bg-gradient-to-t from-teal/60 to-teal" style="height:97%"></div><span class="bar-label">Oct</span></div>
+              <div class="bar-wrapper"><span class="bar-value">230</span><div class="bar bg-gradient-to-t from-gold/60 to-gold" style="height:77%"></div><span class="bar-label">Nov</span></div>
+              <div class="bar-wrapper"><span class="bar-value">200</span><div class="bar bg-gradient-to-t from-gold/60 to-gold" style="height:67%"></div><span class="bar-label">Déc</span></div>
+            </div>
+          </div>
+
+          <!-- Donut Chart -->
+          <div class="chart-card reveal" style="transition-delay:0.3s;">
+            <div class="mb-6">
+              <h3 class="text-white font-bold text-lg">Répartition Rôles</h3>
+              <p class="text-gray-400 text-xs mt-0.5">47 utilisateurs</p>
+            </div>
+            <div class="donut-chart">
+              <svg width="160" height="160" viewBox="0 0 160 160">
+                <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(240,165,0,0.08)" stroke-width="20"/>
+                <circle cx="80" cy="80" r="60" fill="none" stroke="#F0A500" stroke-width="20" stroke-dasharray="37.7 339.3" stroke-dashoffset="0" class="progress-ring-circle" style="animation: donut1 1.5s ease forwards;"/>
+                <circle cx="80" cy="80" r="60" fill="none" stroke="#00B4D8" stroke-width="20" stroke-dasharray="113.1 263.9" stroke-dashoffset="-37.7" class="progress-ring-circle" style="animation: donut2 1.5s ease 0.3s forwards;"/>
+                <circle cx="80" cy="80" r="60" fill="none" stroke="#8B5CF6" stroke-width="20" stroke-dasharray="75.4 301.6" stroke-dashoffset="-150.8" class="progress-ring-circle" style="animation: donut3 1.5s ease 0.6s forwards;"/>
+                <circle cx="80" cy="80" r="60" fill="none" stroke="#10B981" stroke-width="20" stroke-dasharray="150.8 226.2" stroke-dashoffset="-226.2" class="progress-ring-circle" style="animation: donut4 1.5s ease 0.9s forwards;"/>
+              </svg>
+              <div class="donut-center">
+                <p class="text-white text-2xl font-black">47</p>
+                <p class="text-gray-400 text-[10px]">Membres</p>
+              </div>
+            </div>
+            <style>
+              @keyframes donut1 { from { stroke-dasharray: 0 377; } to { stroke-dasharray: 37.7 339.3; } }
+              @keyframes donut2 { from { stroke-dasharray: 0 377; } to { stroke-dasharray: 113.1 263.9; } }
+              @keyframes donut3 { from { stroke-dasharray: 0 377; } to { stroke-dasharray: 75.4 301.6; } }
+              @keyframes donut4 { from { stroke-dasharray: 0 377; } to { stroke-dasharray: 150.8 226.2; } }
+            </style>
+            <div class="mt-6 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-gold"></span><span class="text-gray-300 text-xs">Admins</span></div>
+                <span class="text-white text-xs font-bold">10%</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-teal"></span><span class="text-gray-300 text-xs">Topographes</span></div>
+                <span class="text-white text-xs font-bold">30%</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-purple-400"></span><span class="text-gray-300 text-xs">Éditeurs</span></div>
+                <span class="text-white text-xs font-bold">20%</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-green-400"></span><span class="text-gray-300 text-xs">Consultants</span></div>
+                <span class="text-white text-xs font-bold">40%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mb-8 reveal" style="transition-delay:0.3s;">
+          <h3 class="text-white font-bold text-lg mb-4">Actions Rapides Admin</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div class="quick-action" onclick="openAddUserModal()">
+              <div class="w-12 h-12 rounded-xl bg-gold/15 flex items-center justify-center mb-3"><i class="fas fa-user-plus text-gold"></i></div>
+              <p class="text-gray-300 text-xs font-medium text-center">Ajouter User</p>
+            </div>
+            <div class="quick-action">
+              <div class="w-12 h-12 rounded-xl bg-teal/15 flex items-center justify-center mb-3"><i class="fas fa-file-export text-teal"></i></div>
+              <p class="text-gray-300 text-xs font-medium text-center">Export Rapport</p>
+            </div>
+            <div class="quick-action">
+              <div class="w-12 h-12 rounded-xl bg-green-500/15 flex items-center justify-center mb-3"><i class="fas fa-database text-green-400"></i></div>
+              <p class="text-gray-300 text-xs font-medium text-center">Backup DB</p>
+            </div>
+            <div class="quick-action">
+              <div class="w-12 h-12 rounded-xl bg-purple-500/15 flex items-center justify-center mb-3"><i class="fas fa-shield-alt text-purple-400"></i></div>
+              <p class="text-gray-300 text-xs font-medium text-center">Audit Sécurité</p>
+            </div>
+            <div class="quick-action">
+              <div class="w-12 h-12 rounded-xl bg-red-500/15 flex items-center justify-center mb-3"><i class="fas fa-ban text-red-400"></i></div>
+              <p class="text-gray-300 text-xs font-medium text-center">Gérer Bans</p>
+            </div>
+            <div class="quick-action">
+              <div class="w-12 h-12 rounded-xl bg-blue-500/15 flex items-center justify-center mb-3"><i class="fas fa-envelope text-blue-400"></i></div>
+              <p class="text-gray-300 text-xs font-medium text-center">Envoyer Email</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Server Monitoring -->
+        <div class="grid lg:grid-cols-2 gap-6 mb-8">
+          <div class="chart-card reveal" style="transition-delay:0.2s;">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="text-white font-bold text-lg">État du Serveur</h3>
+                <p class="text-gray-400 text-xs mt-0.5">Monitoring en temps réel</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="live-dot"></span>
+                <span class="text-green-400 text-xs font-semibold">En ligne</span>
+              </div>
+            </div>
+            <div class="space-y-5">
+              <div>
+                <div class="flex justify-between mb-2">
+                  <span class="text-gray-300 text-sm"><i class="fas fa-microchip text-gold mr-2"></i>CPU</span>
+                  <span class="text-gold text-sm font-bold">45%</span>
+                </div>
+                <div class="server-bar"><div class="server-bar-fill bg-gradient-to-r from-gold to-goldLight" style="width:45%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-2">
+                  <span class="text-gray-300 text-sm"><i class="fas fa-memory text-teal mr-2"></i>RAM</span>
+                  <span class="text-teal text-sm font-bold">62%</span>
+                </div>
+                <div class="server-bar"><div class="server-bar-fill bg-gradient-to-r from-teal to-teal/70" style="width:62%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-2">
+                  <span class="text-gray-300 text-sm"><i class="fas fa-hdd text-green-400 mr-2"></i>Stockage</span>
+                  <span class="text-green-400 text-sm font-bold">78%</span>
+                </div>
+                <div class="server-bar"><div class="server-bar-fill bg-gradient-to-r from-green-400 to-green-500" style="width:78%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-2">
+                  <span class="text-gray-300 text-sm"><i class="fas fa-network-wired text-purple-400 mr-2"></i>Réseau</span>
+                  <span class="text-purple-400 text-sm font-bold">23%</span>
+                </div>
+                <div class="server-bar"><div class="server-bar-fill bg-gradient-to-r from-purple-400 to-purple-500" style="width:23%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-2">
+                  <span class="text-gray-300 text-sm"><i class="fas fa-thermometer-half text-red-400 mr-2"></i>Température</span>
+                  <span class="text-red-400 text-sm font-bold">38°C</span>
+                </div>
+                <div class="server-bar"><div class="server-bar-fill bg-gradient-to-r from-red-400 to-red-500" style="width:38%"></div></div>
+            </div>
+                   <!-- Température (fin corrigée) -->
+              <div>
+                <div class="flex justify-between mb-2">
+                  <span class="text-gray-300 text-sm"><i class="fas fa-thermometer-half text-red-400 mr-2"></i>Température</span>
+                  <span class="text-red-400 text-sm font-bold">38°C</span>
+                </div>
+                <div class="server-bar">
+                  <div class="server-bar-fill bg-gradient-to-r from-red-400 to-red-500" style="width:38%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="chart-card reveal" style="transition-delay:0.3s;">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="text-white font-bold text-lg">Activité Récente</h3>
+                <p class="text-gray-400 text-xs mt-0.5">Dernières actions système</p>
+              </div>
+              <a href="#" class="text-gold text-xs font-semibold hover:underline">Voir tout →</a>
+            </div>
+            <div class="space-y-4">
+              <div class="flex items-center gap-3 py-3 border-b border-white/5">
+                <div class="w-9 h-9 rounded-lg bg-gold/15 flex items-center justify-center flex-shrink-0">
+                  <i class="fas fa-user-plus text-gold text-xs"></i>
+                </div>
+                <div class="flex-1">
+                  <p class="text-white text-sm font-medium">Nouvel utilisateur ajouté</p>
+                  <p class="text-gray-500 text-[11px]">Karim M. — Topographe</p>
+                </div>
+                <span class="text-gray-500 text-[10px]">Il y a 5 min</span>
+              </div>
+              <div class="flex items-center gap-3 py-3 border-b border-white/5">
+                <div class="w-9 h-9 rounded-lg bg-teal/15 flex items-center justify-center flex-shrink-0">
+                  <i class="fas fa-check-circle text-teal text-xs"></i>
+                </div>
+                <div class="flex-1">
+                  <p class="text-white text-sm font-medium">Projet terminé</p>
+                  <p class="text-gray-500 text-[11px]">Résidence Les Pins — 100%</p>
+                </div>
+                <span class="text-gray-500 text-[10px]">Il y a 1h</span>
+              </div>
+              <div class="flex items-center gap-3 py-3 border-b border-white/5">
+                <div class="w-9 h-9 rounded-lg bg-green-500/15 flex items-center justify-center flex-shrink-0">
+                  <i class="fas fa-database text-green-400 text-xs"></i>
+                </div>
+                <div class="flex-1">
+                  <p class="text-white text-sm font-medium">Backup automatique</p>
+                  <p class="text-gray-500 text-[11px]">Base de données — 2.3 GB</p>
+                </div>
+                <span class="text-gray-500 text-[10px]">Il y a 3h</span>
+              </div>
+              <div class="flex items-center gap-3 py-3 border-b border-white/5">
+                <div class="w-9 h-9 rounded-lg bg-red-500/15 flex items-center justify-center flex-shrink-0">
+                  <i class="fas fa-exclamation-triangle text-red-400 text-xs"></i>
+                </div>
+                <div class="flex-1">
+                  <p class="text-white text-sm font-medium">Alerte sécurité</p>
+                  <p class="text-gray-500 text-[11px]">3 tentatives de connexion échouées</p>
+                </div>
+                <span class="text-gray-500 text-[10px]">Il y a 5h</span>
+              </div>
+              <div class="flex items-center gap-3 py-3">
+                <div class="w-9 h-9 rounded-lg bg-purple-500/15 flex items-center justify-center flex-shrink-0">
+                  <i class="fas fa-file-upload text-purple-400 text-xs"></i>
+                </div>
+                <div class="flex-1">
+                  <p class="text-white text-sm font-medium">Rapport exporté</p>
+                  <p class="text-gray-500 text-[11px]">Barrage Koudiat — PDF</p>
+                </div>
+                <span class="text-gray-500 text-[10px]">Hier</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!-- FIN TAB DASHBOARD -->
+
+      <!-- ===== TAB: USERS ===== -->
+      <div class="tab-content" id="tab-users">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h2 class="text-2xl font-playfair font-black text-white">
+              Gestion des <span class="text-gold">Utilisateurs</span>
+            </h2>
+            <p class="text-gray-400 text-sm mt-1">47 utilisateurs enregistrés</p>
+          </div>
+          <button onclick="openAddUserModal()" class="px-5 py-2.5 bg-gradient-to-r from-gold to-goldLight text-primary font-bold text-sm rounded-xl hover:shadow-lg hover:shadow-gold/30 transition-all hover:-translate-y-0.5">
+            <i class="fas fa-user-plus mr-2"></i>Ajouter un Utilisateur
+          </button>
+        </div>
+
+        <div class="chart-card reveal active">
+          <div class="overflow-x-auto">
+            <table class="dashboard-table">
+              <thead>
+                <tr>
+                  <th>Utilisateur</th>
+                  <th>Rôle</th>
+                  <th>Statut</th>
+                  <th>Projets</th>
+                  <th>Dernière Connexion</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-gold to-goldLight flex items-center justify-center flex-shrink-0">
+                        <span class="text-primary font-bold text-xs">AB</span>
+                      </div>
+                      <div>
+                        <p class="text-white font-medium text-sm">Amine Benali</p>
+                        <p class="text-gray-500 text-xs">amine@toposarl.com</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="role-badge admin"><i class="fas fa-shield-alt text-[8px]"></i> Admin</span></td>
+                  <td><span class="status-badge active"><span class="dot"></span>Actif</span></td>
+                  <td class="text-white text-sm font-semibold">12</td>
+                  <td class="text-gray-400 text-xs">Il y a 5 min</td>
+                  <td>
+                    <div class="flex gap-1">
+                      <button class="action-btn view text-gray-400"><i class="fas fa-eye text-xs"></i></button>
+                      <button class="action-btn edit text-gray-400"><i class="fas fa-edit text-xs"></i></button>
+                      <button class="action-btn delete text-gray-400"><i class="fas fa-trash text-xs"></i></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-teal to-teal/70 flex items-center justify-center flex-shrink-0">
+                        <span class="text-white font-bold text-xs">FB</span>
+                      </div>
+                      <div>
+                        <p class="text-white font-medium text-sm">Fatima Boudiaf</p>
+                        <p class="text-gray-500 text-xs">fatima@toposarl.com</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="role-badge editor"><i class="fas fa-pen text-[8px]"></i> Éditeur</span></td>
+                  <td><span class="status-badge active"><span class="dot"></span>Actif</span></td>
+                  <td class="text-white text-sm font-semibold">8</td>
+                  <td class="text-gray-400 text-xs">Il y a 1 heure</td>
+                  <td>
+                    <div class="flex gap-1">
+                      <button class="action-btn view text-gray-400"><i class="fas fa-eye text-xs"></i></button>
+                      <button class="action-btn edit text-gray-400"><i class="fas fa-edit text-xs"></i></button>
+                      <button class="action-btn delete text-gray-400"><i class="fas fa-trash text-xs"></i></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-green-400 to-green-500 flex items-center justify-center flex-shrink-0">
+                        <span class="text-white font-bold text-xs">KM</span>
+                      </div>
+                      <div>
+                        <p class="text-white font-medium text-sm">Karim Messaoudi</p>
+                        <p class="text-gray-500 text-xs">karim@toposarl.com</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="role-badge user"><i class="fas fa-user text-[8px]"></i> Topographe</span></td>
+                  <td><span class="status-badge pending"><span class="dot"></span>En attente</span></td>
+                  <td class="text-white text-sm font-semibold">3</td>
+                  <td class="text-gray-400 text-xs">Il y a 2 jours</td>
+                  <td>
+                    <div class="flex gap-1">
+                      <button class="action-btn view text-gray-400"><i class="fas fa-eye text-xs"></i></button>
+                      <button class="action-btn edit text-gray-400"><i class="fas fa-edit text-xs"></i></button>
+                      <button class="action-btn delete text-gray-400"><i class="fas fa-trash text-xs"></i></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-400 to-purple-500 flex items-center justify-center flex-shrink-0">
+                        <span class="text-white font-bold text-xs">SH</span>
+                      </div>
+                      <div>
+                        <p class="text-white font-medium text-sm">Sara Hadj</p>
+                        <p class="text-gray-500 text-xs">sara@toposarl.com</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="role-badge user"><i class="fas fa-user text-[8px]"></i> Topographe</span></td>
+                  <td><span class="status-badge active"><span class="dot"></span>Actif</span></td>
+                  <td class="text-white text-sm font-semibold">6</td>
+                  <td class="text-gray-400 text-xs">Il y a 30 min</td>
+                  <td>
+                    <div class="flex gap-1">
+                      <button class="action-btn view text-gray-400"><i class="fas fa-eye text-xs"></i></button>
+                      <button class="action-btn edit text-gray-400"><i class="fas fa-edit text-xs"></i></button>
+                      <button class="action-btn delete text-gray-400"><i class="fas fa-trash text-xs"></i></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-red-400 to-red-500 flex items-center justify-center flex-shrink-0">
+                        <span class="text-white font-bold text-xs">YL</span>
+                      </div>
+                      <div>
+                        <p class="text-white font-medium text-sm">Youcef Lakhdar</p>
+                        <p class="text-gray-500 text-xs">youcef@toposarl.com</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="role-badge editor"><i class="fas fa-pen text-[8px]"></i> Éditeur</span></td>
+                  <td><span class="status-badge inactive"><span class="dot"></span>Inactif</span></td>
+                  <td class="text-white text-sm font-semibold">1</td>
+                  <td class="text-gray-400 text-xs">Il y a 15 jours</td>
+                  <td>
+                    <div class="flex gap-1">
+                      <button class="action-btn view text-gray-400"><i class="fas fa-eye text-xs"></i></button>
+                      <button class="action-btn edit text-gray-400"><i class="fas fa-edit text-xs"></i></button>
+                      <button class="action-btn delete text-gray-400"><i class="fas fa-trash text-xs"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- FIN TAB USERS -->
+
+      <!-- ===== TAB: PROJECTS ===== -->
+      <div class="tab-content" id="tab-projects">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h2 class="text-2xl font-playfair font-black text-white">
+              Gestion des <span class="text-gold">Projets</span>
+            </h2>
+            <p class="text-gray-400 text-sm mt-1">24 projets actifs</p>
+          </div>
+          <button class="px-5 py-2.5 bg-gradient-to-r from-gold to-goldLight text-primary font-bold text-sm rounded-xl hover:shadow-lg hover:shadow-gold/30 transition-all hover:-translate-y-0.5">
+            <i class="fas fa-plus mr-2"></i>Nouveau Projet
+          </button>
+        </div>
+
+        <div class="chart-card reveal active">
+          <div class="overflow-x-auto">
+            <table class="dashboard-table">
+              <thead>
+                <tr>
+                  <th>Projet</th>
+                  <th>Client</th>
+                  <th>Responsable</th>
+                  <th>Statut</th>
+                  <th>Progression</th>
+                  <th>Budget</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-lg bg-gold/15 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-road text-gold text-xs"></i>
+                      </div>
+                      <span class="text-white font-medium text-sm">Autoroute Est-Ouest</span>
+                    </div>
+                  </td>
+                  <td class="text-gray-400 text-sm">SARPT</td>
+                  <td class="text-gray-400 text-sm">Amine B.</td>
+                  <td><span class="status-badge active"><span class="dot"></span>En cours</span></td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <div class="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-gold to-goldLight rounded-full" style="width:75%"></div>
+                      </div>
+                      <span class="text-gold text-xs font-bold">75%</span>
+                    </div>
+                  </td>
+                  <td class="text-white text-sm font-semibold">850K DA</td>
+                  <td>
+                    <div class="flex gap-1">
+                      <button class="action-btn view text-gray-400"><i class="fas fa-eye text-xs"></i></button>
+                      <button class="action-btn edit text-gray-400"><i class="fas fa-edit text-xs"></i></button>
+                      <button class="action-btn delete text-gray-400"><i class="fas fa-trash text-xs"></i></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-lg bg-teal/15 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-city text-teal text-xs"></i>
+                      </div>
+                      <span class="text-white font-medium text-sm">Résidence Les Pins</span>
+                    </div>
+                  </td>
+                  <td class="text-gray-400 text-sm">PROMOTION IMMO</td>
+                  <td class="text-gray-400 text-sm">Fatima B.</td>
+                  <td><span class="status-badge active" style="background:rgba(16,185,129,0.15);color:#10B981;"><span class="dot"></span>Terminé</span></td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <div class="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full" style="width:100%"></div>
+                      </div>
+                      <span class="text-green-400 text-xs font-bold">100%</span>
+                    </div>
+                  </td>
+                  <td class="text-white text-sm font-semibold">320K DA</td>
+                  <td>
+                    <div class="flex gap-1">
+                      <button class="action-btn view text-gray-400"><i class="fas fa-eye text-xs"></i></button>
+                      <button class="action-btn edit text-gray-400"><i class="fas fa-edit text-xs"></i></button>
+                      <button class="action-btn delete text-gray-400"><i class="fas fa-trash text-xs"></i></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-lg bg-purple-500/15 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-water text-purple-400 text-xs"></i>
+                      </div>
+                      <span class="text-white font-medium text-sm">Barrage Koudiat</span>
+                    </div>
+                  </td>
+                  <td class="text-gray-400 text-sm">ANBT</td>
+                  <td class="text-gray-400 text-sm">Sara H.</td>
+                  <td><span class="status-badge active"><span class="dot"></span>En cours</span></td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <div class="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-gold to-goldLight rounded-full" style="width:45%"></div>
+                      </div>
+                      <span class="text-gold text-xs font-bold">45%</span>
+                    </div>
+                  </td>
+                  <td class="text-white text-sm font-semibold">1.2M DA</td>
+                  <td>
+                    <div class="flex gap-1">
+                      <button class="action-btn view text-gray-400"><i class="fas fa-eye text-xs"></i></button>
+                      <button class="action-btn edit text-gray-400"><i class="fas fa-edit text-xs"></i></button>
+                      <button class="action-btn delete text-gray-400"><i class="fas fa-trash text-xs"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- FIN TAB PROJECTS -->
+
+    </main>
+  </div>
+  <!-- FIN MAIN CONTENT -->
+
+  <!-- ===== MODAL: AJOUTER UTILISATEUR ===== -->
+  <div class="modal-overlay" id="addUserModal">
+    <div class="modal-content">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-white font-bold text-lg">
+          <i class="fas fa-user-plus text-gold mr-2"></i>Ajouter un Utilisateur
+        </h3>
+        <button onclick="closeAddUserModal()" class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleAddUser(event)" class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-gray-400 text-xs font-semibold mb-1 block">Prénom</label>
+            <input type="text" class="modal-input" placeholder="Prénom" required>
+          </div>
+          <div>
+            <label class="text-gray-400 text-xs font-semibold mb-1 block">Nom</label>
+            <input type="text" class="modal-input" placeholder="Nom" required>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-gray-400 text-xs font-semibold mb-1 block">Email</label>
+          <input type="email" class="modal-input" placeholder="email@toposarl.com" required>
+        </div>
+
+        <div>
+          <label class="text-gray-400 text-xs font-semibold mb-1 block">Rôle</label>
+          <select class="modal-select" required>
+            <option value="" disabled selected>Choisir un rôle</option>
+            <option value="admin">🛡️ Administrateur</option>
+            <option value="topographe">📐 Topographe</option>
+            <option value="editeur">✏️ Éditeur</option>
+            <option value="consultant">👁️ Consultant</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="text-gray-400 text-xs font-semibold mb-1 block">Mot de passe temporaire</label>
+          <input type="password" class="modal-input" placeholder="Min. 6 caractères" required>
+        </div>
+
+        <div class="flex gap-3 pt-4">
+          <button type="button" onclick="closeAddUserModal()" class="flex-1 py-3 bg-white/5 border border-white/10 text-gray-300 font-semibold text-sm rounded-xl hover:bg-white/10 transition-all">
+            Annuler
+          </button>
+          <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-gold to-goldLight text-primary font-bold text-sm rounded-xl hover:shadow-lg hover:shadow-gold/30 transition-all">
+            <i class="fas fa-plus mr-2"></i>Créer le Compte
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== JAVASCRIPT COMPLET ===== -->
+  <script>
+    // ===== PRELOADER =====
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const preloader = document.getElementById('preloader');
+        if (preloader) preloader.classList.add('hidden');
+      }, 1200);
+    });
+
+    // ===== SIDEBAR TOGGLE =====
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const main = document.getElementById('mainContent');
+      sidebar.classList.toggle('collapsed');
+      main.classList.toggle('expanded');
+    }
+
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('mobileOverlay');
+      sidebar.classList.toggle('mobile-open');
+      overlay.classList.toggle('active');
+    }
+
+    // ===== TABS =====
+    function switchTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      // Show selected tab
+      const target = document.getElementById('tab-' + tabName);
+      if (target) target.classList.add('active');
+
+      // Update sidebar active state
+      document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+      event.target.closest('.sidebar-link')?.classList.add('active');
+
+      // Close mobile sidebar
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('mobileOverlay');
+      sidebar.classList.remove('mobile-open');
+      overlay.classList.remove('active');
+    }
+
+    // ===== NOTIFICATION PANEL =====
+    function toggleNotifPanel() {
+      const panel = document.getElementById('notifPanel');
+      const profileDD = document.getElementById('profileDropdown');
+      if (profileDD) profileDD.classList.remove('active');
+      panel.classList.toggle('active');
+    }
+
+    // ===== PROFILE DROPDOWN =====
+    function toggleProfileDropdown() {
+      const dropdown = document.getElementById('profileDropdown');
+      const notifPanel = document.getElementById('notifPanel');
+      if (notifPanel) notifPanel.classList.remove('active');
+      dropdown.classList.toggle('active');
+    }
+
+    // Close dropdowns on outside click
+    document.addEventListener('click', (e) => {
+      const notifPanel = document.getElementById('notifPanel');
+      const profileDD = document.getElementById('profileDropdown');
+
+      if (notifPanel && !e.target.closest('.notif-panel') && !e.target.closest('[onclick*="toggleNotifPanel"]')) {
+        notifPanel.classList.remove('active');
+      }
+      if (profileDD && !e.target.closest('.profile-dropdown') && !e.target.closest('[onclick*="toggleProfileDropdown"]')) {
+        profileDD.classList.remove('active');
+      }
+    });
+
+    // ===== ADD USER MODAL =====
+    function openAddUserModal() {
+      document.getElementById('addUserModal').classList.add('active');
+    }
+    function closeAddUserModal() {
+      document.getElementById('addUserModal').classList.remove('active');
+    }
+    function handleAddUser(e) {
+      e.preventDefault();
+      closeAddUserModal();
+      showToast('Utilisateur créé', 'Le nouveau compte a été créé avec succès.', 'success');
+    }
+
+    // ===== TOAST =====
+    function showToast(title, msg, type) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastTitle').textContent = title;
+      document.getElementById('toastMsg').textContent = msg;
+      toast.className = 'toast ' + type + ' show';
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    // ===== SCROLL REVEAL =====
+    function revealOnScroll() {
+      document.querySelectorAll('.reveal').forEach(el => {
+        if (el.getBoundingClientRect().top < window.innerHeight - 80) {
+          el.classList.add('active');
+        }
+      });
+    }
+    window.addEventListener('scroll', revealOnScroll);
+    window.addEventListener('load', revealOnScroll);
+
+    // ===== COUNTER ANIMATION =====
+    function animateCounters() {
+      document.querySelectorAll('.counter').forEach(counter => {
+        const target = +counter.getAttribute('data-target');
+        const rect = counter.getBoundingClientRect();
+        if (rect.top < window.innerHeight && !counter.classList.contains('counted')) {
+          counter.classList.add('counted');
+          let current = 0;
+          const increment = target / 80;
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              counter.textContent = target + '+';
+              clearInterval(timer);
+            } else {
+              counter.textContent = Math.ceil(current);
+            }
+          }, 20);
+        }
+      });
+    }
+    window.addEventListener('scroll', animateCounters);
+    window.addEventListener('load', animateCounters);
+
+    // ===== CURRENT DATE =====
+    const dateEl = document.getElementById('currentDate');
+    if (dateEl) {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      dateEl.textContent = now.toLocaleDateString('fr-FR', options);
+    }
+  </script>
+
+</body>
+</html>
