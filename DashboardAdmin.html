@@ -606,6 +606,38 @@
     .toast.success { border-left: 4px solid #10B981; }
     .toast.error { border-left: 4px solid #EF4444; }
     .toast.warning { border-left: 4px solid #F0A500; }
+
+
+    /* Toggle Switch */
+.toggle-switch {
+  position: relative; display: inline-block; width: 44px; height: 24px;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-switch .slider {
+  position: absolute; cursor: pointer; inset: 0;
+  background: #4B5563; border-radius: 24px;
+  transition: 0.3s;
+}
+.toggle-switch .slider:before {
+  content: ""; position: absolute; height: 18px; width: 18px;
+  left: 3px; bottom: 3px; background: white; border-radius: 50%;
+  transition: 0.3s;
+}
+.toggle-switch input:checked + .slider { background: #F0A500; }
+.toggle-switch input:checked + .slider:before { transform: translateX(20px); }
+/* Ajustements pour inputs date & textarea */
+input[type="date"] {
+  color-scheme: dark;
+  cursor: pointer;
+}
+textarea.modal-input {
+  resize: vertical;
+  min-height: 80px;
+}
+.modal-input:focus, .modal-select:focus {
+  border-color: #F0A500;
+  box-shadow: 0 0 0 3px rgba(240, 165, 0, 0.15);
+}
   </style>
 </head>
 
@@ -649,29 +681,32 @@
     </div>
 
     <!-- Main Nav -->
-    <div class="sidebar-section-title">Principal</div>
+        <div class="sidebar-section-title">Principal</div>
     <nav class="px-2">
       <a href="#" class="sidebar-link active" onclick="switchTab('dashboard')">
-        <i class="fas fa-th-large"></i>
-        <span class="sidebar-text text-sm">Tableau de Bord</span>
+        <i class="fas fa-th-large"></i><span class="sidebar-text text-sm">Tableau de Bord</span>
       </a>
       <a href="#" class="sidebar-link" onclick="switchTab('users')">
-        <i class="fas fa-users"></i>
-        <span class="sidebar-text text-sm">Utilisateurs</span>
-        <span class="sidebar-badge sidebar-text">47</span>
+        <i class="fas fa-users"></i><span class="sidebar-text text-sm">Utilisateurs</span>
       </a>
       <a href="#" class="sidebar-link" onclick="switchTab('projects')">
-        <i class="fas fa-project-diagram"></i>
-        <span class="sidebar-text text-sm">Projets</span>
+        <i class="fas fa-project-diagram"></i><span class="sidebar-text text-sm">Projets</span>
       </a>
-      <a href="#" class="sidebar-link">
-        <i class="fas fa-map-marked-alt"></i>
-        <span class="sidebar-text text-sm">Levés</span>
+      <a href="#" class="sidebar-link" onclick="switchTab('rapport')">
+        <i class="fas fa-file-alt"></i><span class="sidebar-text text-sm">Rapports</span>
       </a>
-      <a href="#" class="sidebar-link">
-        <i class="fas fa-file-alt"></i>
-        <span class="sidebar-text text-sm">Rapports</span>
-        <span class="sidebar-badge sidebar-text" style="background:#F0A500;color:#0F2027;">5</span>
+    </nav>
+
+    <div class="sidebar-section-title">Gestion</div>
+    <nav class="px-2">
+      <a href="#" class="sidebar-link" onclick="switchTab('profil')">
+        <i class="fas fa-user-circle"></i><span class="sidebar-text text-sm">Mon Profil</span>
+      </a>
+      <a href="#" class="sidebar-link" onclick="switchTab('parametre')">
+        <i class="fas fa-cog"></i><span class="sidebar-text text-sm">Paramètres</span>
+      </a>
+      <a href="#" class="sidebar-link" onclick="switchTab('logsysteme')">
+        <i class="fas fa-clipboard-list"></i><span class="sidebar-text text-sm">Logs Système</span>
       </a>
     </nav>
 
@@ -707,11 +742,11 @@
         <i class="fas fa-shield-alt"></i>
         <span class="sidebar-text text-sm">Sécurité</span>
       </a>
-      <a href="#" class="sidebar-link">
+      <a href="#" class="sidebar-link" onclick="switchTab('parametre')">
         <i class="fas fa-cog"></i>
         <span class="sidebar-text text-sm">Paramètres</span>
       </a>
-      <a href="#" class="sidebar-link">
+      <a href="#" class="sidebar-link" onclick="switchTab('profil')">
         <i class="fas fa-clipboard-list"></i>
         <span class="sidebar-text text-sm">Logs Système</span>
       </a>
@@ -720,7 +755,7 @@
     <!-- Compte -->
     <div class="sidebar-section-title">Compte</div>
     <nav class="px-2">
-      <a href="#" class="sidebar-link">
+      <a href="#" class="sidebar-link" onclick="switchTab('profil')">
         <i class="fas fa-user-circle"></i>
         <span class="sidebar-text text-sm">Mon Profil</span>
       </a>
@@ -842,19 +877,19 @@
                     <span class="text-primary font-bold text-lg">AD</span>
                   </div>
                   <div>
-                    <p class="text-white font-bold text-sm">Directeur</p>
-                    <p class="text-gray-400 text-xs">admin@toposarl.com</p>
+                    <p class="text-white font-bold text-sm">Junior SAAH</p>
+                    <p class="text-gray-400 text-xs">juniorsaah@gmail.com</p>
                   </div>
                 </div>
               </div>
               <div class="p-2">
-                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-gold hover:bg-white/5 transition-all text-sm">
+                <a href="#" onclick="switchTab('profil')" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-gold hover:bg-white/5 transition-all text-sm">
                   <i class="fas fa-user w-4"></i> Mon Profil
                 </a>
-                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-gold hover:bg-white/5 transition-all text-sm">
+                <a href="#" onclick="switchTab('parametre')" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-gold hover:bg-white/5 transition-all text-sm">
                   <i class="fas fa-cog w-4"></i> Paramètres
                 </a>
-                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-gold hover:bg-white/5 transition-all text-sm">
+                <a href="#" onclick="switchTab('logsysteme')" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-gold hover:bg-white/5 transition-all text-sm">
                   <i class="fas fa-clipboard-list w-4"></i> Logs
                 </a>
                 <div class="border-t border-white/5 mt-1 pt-1">
@@ -1386,9 +1421,9 @@
             </h2>
             <p class="text-gray-400 text-sm mt-1">24 projets actifs</p>
           </div>
-          <button class="px-5 py-2.5 bg-gradient-to-r from-gold to-goldLight text-primary font-bold text-sm rounded-xl hover:shadow-lg hover:shadow-gold/30 transition-all hover:-translate-y-0.5">
-            <i class="fas fa-plus mr-2"></i>Nouveau Projet
-          </button>
+         <button onclick="openNewProjectModal()" class="px-5 py-2.5 bg-gradient-to-r from-gold to-goldLight text-primary font-bold text-sm rounded-xl hover:shadow-lg hover:shadow-gold/30 transition-all hover:-translate-y-0.5">
+  <i class="fas fa-plus mr-2"></i>Nouveau Projet
+</button>
         </div>
 
         <div class="chart-card reveal active">
@@ -1500,10 +1535,376 @@
       </div>
       <!-- FIN TAB PROJECTS -->
 
+      <!-- ==== TAB: PROFIL ==== -->
+       <div class="tab-content" id="tab-profil">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h2 class="text-2xl font-playfair font-black text-white">Mon <span class="text-gold">Profil</span></h2>
+      <p class="text-gray-400 text-sm mt-1">Gérez vos informations personnelles et sécurité</p>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-6">
+    <!-- Carte Info -->
+    <div class="chart-card reveal active text-center p-6">
+      <div class="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-gold to-goldLight flex items-center justify-center mb-4">
+        <span class="text-primary font-black text-3xl">AD</span>
+      </div>
+      <h3 class="text-white font-bold text-lg">Junior SAAH</h3>
+      <p class="text-gray-400 text-sm">juniorsaah@gmail.com</p>
+      <span class="role-badge admin mt-3 inline-block"><i class="fas fa-shield-alt text-[8px]"></i> Super Admin</span>
+      <div class="mt-6 space-y-3 text-left">
+        <div class="flex justify-between py-2 border-b border-white/5"><span class="text-gray-400 text-sm">Téléphone</span><span class="text-white text-sm">+237 658 24 74 70</span></div>
+        <div class="flex justify-between py-2 border-b border-white/5"><span class="text-gray-400 text-sm">Dernière connexion</span><span class="text-white text-sm">Aujourd'hui, 09:42</span></div>
+        <div class="flex justify-between py-2"><span class="text-gray-400 text-sm">Compte créé le</span><span class="text-white text-sm">12 Avr 2026</span></div>
+      </div>
+    </div>
+
+    <!-- Formulaire -->
+    <div class="lg:col-span-2 chart-card reveal active p-6">
+      <h3 class="text-white font-bold text-lg mb-6">Modifier les Informations</h3>
+      <form class="space-y-5" onsubmit="event.preventDefault(); showToast('Profil mis à jour', 'Vos informations ont été sauvegardées.', 'success');">
+        <div class="grid md:grid-cols-2 gap-5">
+          <div><label class="text-gray-400 text-xs font-semibold mb-1 block">Prénom</label><input type="text" value="Directeur" class="modal-input"></div>
+          <div><label class="text-gray-400 text-xs font-semibold mb-1 block">Nom</label><input type="text" value="Général" class="modal-input"></div>
+        </div>
+        <div><label class="text-gray-400 text-xs font-semibold mb-1 block">Email</label><input type="email" value="admin@toposarl.com" class="modal-input"></div>
+        <div><label class="text-gray-400 text-xs font-semibold mb-1 block">Téléphone</label><input type="tel" value="+213 555 12 34 56" class="modal-input"></div>
+        
+        <div class="border-t border-white/5 pt-5 mt-2">
+          <h4 class="text-white font-semibold mb-3">Changer le Mot de Passe</h4>
+          <div class="grid md:grid-cols-2 gap-5">
+            <div><label class="text-gray-400 text-xs font-semibold mb-1 block">Ancien mot de passe</label><input type="password" class="modal-input" placeholder="••••••••"></div>
+            <div><label class="text-gray-400 text-xs font-semibold mb-1 block">Nouveau mot de passe</label><input type="password" class="modal-input" placeholder="••••••••"></div>
+          </div>
+        </div>
+        <div class="flex justify-end pt-4">
+          <button type="submit" class="px-6 py-3 bg-gradient-to-r from-gold to-goldLight text-primary font-bold text-sm rounded-xl hover:shadow-lg transition-all">
+            <i class="fas fa-save mr-2"></i>Enregistrer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+       <!-- FIN TAB PROFIL -->
+
+       <!-- ==== TAB: PARAMETRES==== -->
+        <div class="tab-content" id="tab-parametre">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h2 class="text-2xl font-playfair font-black text-white">Paramètres <span class="text-gold">Système</span></h2>
+      <p class="text-gray-400 text-sm mt-1">Configuration globale de la plateforme TopoSarl</p>
+    </div>
+    <button onclick="showToast('Paramètres sauvegardés', 'Configuration mise à jour avec succès.', 'success')" class="px-5 py-2.5 bg-gradient-to-r from-gold to-goldLight text-primary font-bold text-sm rounded-xl hover:shadow-lg transition-all">
+      <i class="fas fa-save mr-2"></i>Sauvegarder
+    </button>
+  </div>
+
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Notifications -->
+    <div class="chart-card reveal active p-6">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-10 h-10 rounded-xl bg-gold/15 flex items-center justify-center"><i class="fas fa-bell text-gold"></i></div>
+        <h3 class="text-white font-bold">Notifications</h3>
+      </div>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between"><span class="text-gray-300 text-sm">Emails système</span><label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+        <div class="flex items-center justify-between"><span class="text-gray-300 text-sm">Alertes sécurité</span><label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+        <div class="flex items-center justify-between"><span class="text-gray-300 text-sm">Rapports auto</span><label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label></div>
+      </div>
+    </div>
+
+    <!-- Sauvegarde -->
+    <div class="chart-card reveal active p-6">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-10 h-10 rounded-xl bg-teal/15 flex items-center justify-center"><i class="fas fa-database text-teal"></i></div>
+        <h3 class="text-white font-bold">Sauvegardes</h3>
+      </div>
+      <div class="space-y-4">
+        <div><label class="text-gray-400 text-xs font-semibold mb-1 block">Fréquence</label><select class="modal-select"><option>Quotidienne</option><option>Hebdomadaire</option><option>Mensuelle</option></select></div>
+        <div><label class="text-gray-400 text-xs font-semibold mb-1 block">Rétention (jours)</label><input type="number" value="30" class="modal-input"></div>
+        <button onclick="showToast('Backup lancé', 'Sauvegarde manuelle en cours...', 'success')" class="w-full py-2.5 bg-teal/20 text-teal font-semibold text-sm rounded-lg hover:bg-teal/30 transition-all mt-2"><i class="fas fa-play mr-2"></i>Lancer Backup</button>
+      </div>
+    </div>
+
+    <!-- Sécurité -->
+    <div class="chart-card reveal active p-6">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center"><i class="fas fa-shield-alt text-red-400"></i></div>
+        <h3 class="text-white font-bold">Sécurité</h3>
+      </div>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between"><span class="text-gray-300 text-sm">2FA obligatoire</span><label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+        <div><label class="text-gray-400 text-xs font-semibold mb-1 block">Expiration session (min)</label><input type="number" value="30" class="modal-input"></div>
+        <div><label class="text-gray-400 text-xs font-semibold mb-1 block">Tentatives max</label><input type="number" value="5" class="modal-input"></div>
+      </div>
+    </div>
+
+    <!-- Entreprise -->
+    <div class="chart-card reveal active p-6 md:col-span-2 lg:col-span-3">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-10 h-10 rounded-xl bg-purple-500/15 flex items-center justify-center"><i class="fas fa-building text-purple-400"></i></div>
+        <h3 class="text-white font-bold">Informations Entreprise</h3>
+      </div>
+      <div class="grid md:grid-cols-3 gap-5">
+        <div><label class="text-gray-400 text-xs font-semibold mb-1 block">Nom</label><input type="text" value="TopoSarl" class="modal-input"></div>
+        <div><label class="text-gray-400 text-xs font-semibold mb-1 block">Email contact</label><input type="email" value="contact@toposarl.com" class="modal-input"></div>
+        <div><label class="text-gray-400 text-xs font-semibold mb-1 block">Téléphone</label><input type="tel" value="+213 555 12 34 56" class="modal-input"></div>
+      </div>
+    </div>
+  </div>
+</div>
+        <!-- FIN TAB PARAMETRES -->
+          <!-- ==== TAB: LOG-SYSTEME==== -->
+           <div class="tab-content" id="tab-logsysteme">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h2 class="text-2xl font-playfair font-black text-white">Logs <span class="text-gold">Système</span></h2>
+      <p class="text-gray-400 text-sm mt-1">Historique complet des activités et événements</p>
+    </div>
+    <div class="flex gap-3">
+      <button onclick="showToast('Export lancé', 'Téléchargement du fichier CSV...', 'success')" class="px-4 py-2.5 bg-white/5 border border-white/10 text-gray-300 font-semibold text-sm rounded-xl hover:bg-white/10 transition-all"><i class="fas fa-download mr-2"></i>Export CSV</button>
+      <button onclick="showToast('Logs purgés', 'Archivage des anciens logs effectué.', 'warning')" class="px-4 py-2.5 bg-red-500/10 border border-red-500/20 text-red-400 font-semibold text-sm rounded-xl hover:bg-red-500/20 transition-all"><i class="fas fa-trash mr-2"></i>Purger</button>
+    </div>
+  </div>
+
+  <div class="chart-card reveal active p-6">
+    <div class="flex flex-wrap gap-4 mb-6">
+      <input type="text" placeholder="Rechercher un log..." class="modal-input max-w-xs">
+      <select class="modal-select max-w-[150px]"><option>Tous les types</option><option>Connexion</option><option>Sécurité</option><option>Système</option></select>
+      <select class="modal-select max-w-[150px]"><option>Tous les statuts</option><option>Succès</option><option>Erreur</option><option>Attention</option></select>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="dashboard-table">
+        <thead>
+          <tr><th>Horodatage</th><th>Utilisateur</th><th>Action</th><th>IP</th><th>Statut</th><th>Détails</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-gray-400 text-xs font-mono">2024-02-15 09:42:11</td>
+            <td class="text-white text-sm">Directeur (Admin)</td>
+            <td class="text-gray-300 text-sm">Connexion réussie</td>
+            <td class="text-gray-400 text-xs font-mono">192.168.1.45</td>
+            <td><span class="status-badge active"><span class="dot"></span>Succès</span></td>
+            <td class="text-gray-400 text-xs">Chrome 121 / Windows</td>
+          </tr>
+          <tr>
+            <td class="text-gray-400 text-xs font-mono">2024-02-15 09:38:05</td>
+            <td class="text-white text-sm">Inconnu</td>
+            <td class="text-gray-300 text-sm">Tentative échouée</td>
+            <td class="text-gray-400 text-xs font-mono">41.23.89.12</td>
+            <td><span class="status-badge inactive"><span class="dot"></span>Erreur</span></td>
+            <td class="text-gray-400 text-xs">MDP incorrect (3/5)</td>
+          </tr>
+          <tr>
+            <td class="text-gray-400 text-xs font-mono">2024-02-15 08:15:33</td>
+            <td class="text-white text-sm">Système</td>
+            <td class="text-gray-300 text-sm">Backup automatique</td>
+            <td class="text-gray-400 text-xs font-mono">127.0.0.1</td>
+            <td><span class="status-badge active"><span class="dot"></span>Succès</span></td>
+            <td class="text-gray-400 text-xs">2.4 GB | 4min</td>
+          </tr>
+          <tr>
+            <td class="text-gray-400 text-xs font-mono">2024-02-14 17:22:09</td>
+            <td class="text-white text-sm">Fatima B.</td>
+            <td class="text-gray-300 text-sm">Modification rôle</td>
+            <td class="text-gray-400 text-xs font-mono">192.168.1.88</td>
+            <td><span class="status-badge pending"><span class="dot"></span>Attention</span></td>
+            <td class="text-gray-400 text-xs">Karim M. → Topographe</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="flex justify-between items-center mt-6 pt-4 border-t border-white/5">
+      <p class="text-gray-400 text-xs">Affichage 1-4 sur 1,247 logs</p>
+      <div class="flex gap-2">
+        <button class="px-3 py-1.5 bg-white/5 text-gray-400 text-xs rounded-lg hover:bg-white/10">Précédent</button>
+        <button class="px-3 py-1.5 bg-gold/20 text-gold text-xs rounded-lg font-semibold">1</button>
+        <button class="px-3 py-1.5 bg-white/5 text-gray-400 text-xs rounded-lg hover:bg-white/10">2</button>
+        <button class="px-3 py-1.5 bg-white/5 text-gray-400 text-xs rounded-lg hover:bg-white/10">Suivant</button>
+      </div>
+    </div>
+  </div>
+</div>
+        <!-- FIN TAB LOG-SYSTEME -->
+
+        <!-- ==== TAB: RAPPORT==== -->
+         <div class="tab-content" id="tab-rapport">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h2 class="text-2xl font-playfair font-black text-white">Gestion des <span class="text-gold">Rapports</span></h2>
+      <p class="text-gray-400 text-sm mt-1">38 rapports générés | 5 en attente de validation</p>
+    </div>
+    <button onclick="showToast('Génération lancée', 'Le rapport est en cours de création...', 'success')" class="px-5 py-2.5 bg-gradient-to-r from-gold to-goldLight text-primary font-bold text-sm rounded-xl hover:shadow-lg transition-all">
+      <i class="fas fa-file-alt mr-2"></i>Nouveau Rapport
+    </button>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-6 mb-6">
+    <div class="chart-card reveal active p-5 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-green-500/15 flex items-center justify-center"><i class="fas fa-check-circle text-green-400 text-xl"></i></div>
+      <div><p class="text-white font-bold text-lg">28</p><p class="text-gray-400 text-xs">Validés</p></div>
+    </div>
+    <div class="chart-card reveal active p-5 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-gold/15 flex items-center justify-center"><i class="fas fa-clock text-gold text-xl"></i></div>
+      <div><p class="text-white font-bold text-lg">5</p><p class="text-gray-400 text-xs">En attente</p></div>
+    </div>
+    <div class="chart-card reveal active p-5 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-red-500/15 flex items-center justify-center"><i class="fas fa-exclamation-circle text-red-400 text-xl"></i></div>
+      <div><p class="text-white font-bold text-lg">5</p><p class="text-gray-400 text-xs">Rejetés</p></div>
+    </div>
+  </div>
+
+  <div class="chart-card reveal active p-6">
+    <div class="flex flex-wrap gap-4 mb-6">
+      <input type="text" placeholder="Rechercher un rapport..." class="modal-input max-w-xs">
+      <select class="modal-select max-w-[180px]"><option>Tous les types</option><option>Levé Topo</option><option>Implantation</option><option>Bornage</option></select>
+      <select class="modal-select max-w-[150px]"><option>Tous les statuts</option><option>Validé</option><option>En attente</option><option>Rejeté</option></select>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="dashboard-table">
+        <thead>
+          <tr><th>Rapport</th><th>Projet</th><th>Type</th><th>Auteur</th><th>Date</th><th>Statut</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-white font-medium text-sm"><i class="fas fa-file-pdf text-red-400 mr-2"></i>Rapport_Lot3.pdf</td>
+            <td class="text-gray-400 text-sm">Autoroute Est-Ouest</td>
+            <td class="text-gray-300 text-sm">Levé Topo</td>
+            <td class="text-gray-400 text-sm">Amine B.</td>
+            <td class="text-gray-400 text-xs">14 Fév 2024</td>
+            <td><span class="status-badge active"><span class="dot"></span>Validé</span></td>
+            <td><div class="flex gap-1"><button class="action-btn view text-gray-400"><i class="fas fa-eye text-xs"></i></button><button class="action-btn edit text-gray-400"><i class="fas fa-download text-xs"></i></button></div></td>
+          </tr>
+          <tr>
+            <td class="text-white font-medium text-sm"><i class="fas fa-file-pdf text-red-400 mr-2"></i>Implant_Villas.pdf</td>
+            <td class="text-gray-400 text-sm">Résidence Les Pins</td>
+            <td class="text-gray-300 text-sm">Implantation</td>
+            <td class="text-gray-400 text-sm">Fatima B.</td>
+            <td class="text-gray-400 text-xs">12 Fév 2024</td>
+            <td><span class="status-badge pending"><span class="dot"></span>En attente</span></td>
+            <td><div class="flex gap-1"><button class="action-btn view text-gray-400"><i class="fas fa-eye text-xs"></i></button><button class="action-btn edit text-green-400"><i class="fas fa-check text-xs"></i></button><button class="action-btn delete text-red-400"><i class="fas fa-times text-xs"></i></button></div></td>
+          </tr>
+          <tr>
+            <td class="text-white font-medium text-sm"><i class="fas fa-file-pdf text-red-400 mr-2"></i>Bornage_P42.pdf</td>
+            <td class="text-gray-400 text-sm">Cadastral Sétif</td>
+            <td class="text-gray-300 text-sm">Bornage</td>
+            <td class="text-gray-400 text-sm">Karim M.</td>
+            <td class="text-gray-400 text-xs">10 Fév 2024</td>
+            <td><span class="status-badge inactive"><span class="dot"></span>Rejeté</span></td>
+            <td><div class="flex gap-1"><button class="action-btn view text-gray-400"><i class="fas fa-eye text-xs"></i></button><button class="action-btn edit text-gray-400"><i class="fas fa-redo text-xs"></i></button></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="flex justify-between items-center mt-6 pt-4 border-t border-white/5">
+      <p class="text-gray-400 text-xs">Affichage 1-3 sur 38 rapports</p>
+      <div class="flex gap-2">
+        <button class="px-3 py-1.5 bg-white/5 text-gray-400 text-xs rounded-lg hover:bg-white/10">Précédent</button>
+        <button class="px-3 py-1.5 bg-gold/20 text-gold text-xs rounded-lg font-semibold">1</button>
+        <button class="px-3 py-1.5 bg-white/5 text-gray-400 text-xs rounded-lg hover:bg-white/10">2</button>
+        <button class="px-3 py-1.5 bg-white/5 text-gray-400 text-xs rounded-lg hover:bg-white/10">Suivant</button>
+      </div>
+    </div>
+  </div>
+</div>
+        <!-- FIN TAB RAPPORT -->
+
+        
+
     </main>
   </div>
   <!-- FIN MAIN CONTENT -->
 
+  <!-- ===== MODAL: AJOUTER PROJET ===== -->
+   <!-- ===== MODAL: NOUVEAU PROJET ===== -->
+<div class="modal-overlay" id="newProjectModal">
+  <div class="modal-content" style="max-width: 680px;">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-white font-bold text-lg">
+        <i class="fas fa-project-diagram text-gold mr-2"></i>Créer un Nouveau Projet
+      </h3>
+      <button onclick="closeNewProjectModal()" class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Formulaire -->
+    <form onsubmit="handleNewProject(event)" class="space-y-5">
+      <!-- Ligne 1 -->
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="text-gray-400 text-xs font-semibold mb-1 block">Nom du Projet</label>
+          <input type="text" class="modal-input" placeholder="Ex: Autoroute Est-Ouest" required>
+        </div>
+        <div>
+          <label class="text-gray-400 text-xs font-semibold mb-1 block">Client</label>
+          <input type="text" class="modal-input" placeholder="Ex: SARPT" required>
+        </div>
+      </div>
+
+      <!-- Ligne 2 -->
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="text-gray-400 text-xs font-semibold mb-1 block">Type de Service</label>
+          <select class="modal-select" required>
+            <option value="" disabled selected>Choisir un service</option>
+            <option>📐 Levé Topographique</option>
+            <option>🛰️ GPS / GNSS RTK</option>
+            <option>🏗️ Implantation</option>
+            <option>🗺️ Cartographie & SIG</option>
+            <option>🚁 Photogrammétrie Drone</option>
+            <option>📍 Bornage Foncier</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-gray-400 text-xs font-semibold mb-1 block">Responsable</label>
+          <select class="modal-select" required>
+            <option value="" disabled selected>Assigner un responsable</option>
+            <option>Amine Benali</option>
+            <option>Fatima Boudiaf</option>
+            <option>Karim Messaoudi</option>
+            <option>Sara Hadj</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Ligne 3 -->
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="text-gray-400 text-xs font-semibold mb-1 block">Budget (DA)</label>
+          <input type="text" class="modal-input" placeholder="Ex: 850000" required>
+        </div>
+        <div>
+          <label class="text-gray-400 text-xs font-semibold mb-1 block">Date de Début</label>
+          <input type="date" class="modal-input" required>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label class="text-gray-400 text-xs font-semibold mb-1 block">Description / Notes</label>
+        <textarea class="modal-input" rows="3" placeholder="Objectifs, périmètre, contraintes terrain, livrables attendus..."></textarea>
+      </div>
+
+      <!-- Boutons -->
+      <div class="flex gap-3 pt-2">
+        <button type="button" onclick="closeNewProjectModal()" class="flex-1 py-3 bg-white/5 border border-white/10 text-gray-300 font-semibold text-sm rounded-xl hover:bg-white/10 transition-all">
+          Annuler
+        </button>
+        <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-gold to-goldLight text-primary font-bold text-sm rounded-xl hover:shadow-lg hover:shadow-gold/30 transition-all">
+          <i class="fas fa-plus mr-2"></i>Créer le Projet
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
   <!-- ===== MODAL: AJOUTER UTILISATEUR ===== -->
   <div class="modal-overlay" id="addUserModal">
     <div class="modal-content">
@@ -1563,6 +1964,27 @@
 
   <!-- ===== JAVASCRIPT COMPLET ===== -->
   <script>
+    // ===== MODAL NOUVEAU PROJET =====
+function openNewProjectModal() {
+  document.getElementById('newProjectModal').classList.add('active');
+}
+
+function closeNewProjectModal() {
+  document.getElementById('newProjectModal').classList.remove('active');
+}
+
+function handleNewProject(e) {
+  e.preventDefault();
+  closeNewProjectModal();
+  
+  // Reset du formulaire
+  e.target.reset();
+  
+  // Notification de succès
+  showToast('Projet créé !', 'Le nouveau projet a été ajouté et assigné avec succès.', 'success');
+  
+  // Optionnel : tu pourras ici ajouter une requête fetch/AJAX vers ton backend
+}
     // ===== PRELOADER =====
     window.addEventListener('load', () => {
       setTimeout(() => {
