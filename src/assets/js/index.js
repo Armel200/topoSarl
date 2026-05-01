@@ -131,3 +131,29 @@
       bar.style.width = scrolled + '%';
     }
   });
+
+  //video
+
+  // Gestion du clic pour la première carte (à dupliquer pour chaque vidéo)
+  const card1 = document.querySelector('[id="video1"]').parentNode;
+  const video1 = document.getElementById('video1');
+  const playIcon1 = document.getElementById('play-icon-1');
+
+  card1.addEventListener('click', () => {
+    if (video1.paused) {
+      video1.play();
+      playIcon1.style.opacity = '0';
+    } else {
+      video1.pause();
+      playIcon1.style.opacity = '1';
+    }
+  });
+  
+  // Réafficher l'icône si la vidéo se termine (optionnel)
+  video1.addEventListener('ended', () => {
+    playIcon1.style.opacity = '1';
+  });
+
+  
+
+  
